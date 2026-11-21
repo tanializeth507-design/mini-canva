@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
@@ -898,7 +898,6 @@ export default function Editor() {
 
   const renderFormaEnLienzo = (forma: any) => {
     const commonProps = {
-      key: forma.id,
       id: `elem-${forma.id}`,
       x: forma.x,
       y: forma.y,
@@ -981,7 +980,8 @@ export default function Editor() {
     if (forma.tipo === "corazon") {
       return (
         <Path
-          {...commonProps}
+          key={forma.id}
+        {...commonProps}
           data={escalarPathSvg(getHeartPath(), 0.75 * (forma.escalaNivel || 1))}
           fill={forma.fill}
           stroke={forma.stroke}
@@ -1023,7 +1023,8 @@ export default function Editor() {
       const esTrazo = forma.estilo === "svg_stroke";
       return (
         <Path
-          {...commonProps}
+          key={forma.id}
+        {...commonProps}
           data={forma.path}
           fill={esTrazo ? "transparent" : forma.fill || "#0f172a"}
           stroke={forma.stroke || "#0f172a"}
@@ -1350,6 +1351,35 @@ export default function Editor() {
                   </option>
                 ))}
               </select>
+              <div className="mt-2 space-y-1.5">
+                <div className="flex items-center justify-between gap-1.5">
+                  <span className="text-[11px] text-slate-400">Nombre para la fuente:</span>
+                  <a
+                    href="https://fonts.google.com/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[11px] font-semibold text-sky-400 hover:text-sky-300 underline"
+                  >
+                    Buscar fuentes en internet
+                  </a>
+                </div>
+                <input
+                  type="text"
+                  value={nuevaFuenteGoogle}
+                  onChange={(e) => setNuevaFuenteGoogle(e.target.value)}
+                  placeholder="Ej. Mi Fuente Bonita"
+                  className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-xs text-white"
+                />
+                <button
+                  type="button"
+                  disabled={subiendoFuente}
+                  onClick={() => fontInputRef.current?.click()}
+                  className="w-full py-1.5 px-2.5 rounded-lg text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white cursor-pointer"
+                >
+                  {subiendoFuente ? "Cargando fuente..." : "Seleccionar archivo de fuente (.ttf / .otf)"}
+                </button>
+              </div>
+
             </div>
           </div>
 
@@ -1378,6 +1408,7 @@ export default function Editor() {
                     </option>
                   ))}
                 </select>
+
               </div>
             </div>
 
@@ -1552,3 +1583,7 @@ export default function Editor() {
     </div>
   );
 }
+
+
+
+
