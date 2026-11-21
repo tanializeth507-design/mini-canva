@@ -1197,11 +1197,11 @@ export default function Editor() {
                   key={item.id}
                   onClick={() =>
                     agregarForma(
-                      'estilo' in item && item.estilo === 'svg_stroke' ? 'svg' : item.tipo,
+                      'estilo' in item && item.estilo === 'svg_stroke' ? 'svg' : 'linea',
                       {
                         path: 'path' in item ? item.path : undefined,
-                        points: 'points' in item ? item.points : undefined,
-                        estilo: 'estilo' in item ? item.estilo : item.tipo,
+                        points: 'points' in item && Array.isArray(item.points) ? (item.points as number[]) : undefined,
+                        estilo: 'estilo' in item && typeof item.estilo === 'string' ? item.estilo : 'linea',
                       }
                     )
                   }
@@ -1218,11 +1218,11 @@ export default function Editor() {
                   key={item.id}
                   onClick={() =>
                     agregarForma(
-                      'estilo' in item && (item.estilo === 'svg_stroke' || item.estilo === 'svg_fill') ? 'svg' : item.tipo,
+                      'estilo' in item && (item.estilo === 'svg_stroke' || item.estilo === 'svg_fill') ? 'svg' : 'linea',
                       {
                         path: 'path' in item ? item.path : undefined,
-                        points: 'points' in item ? item.points : undefined,
-                        estilo: 'estilo' in item ? item.estilo : item.tipo,
+                        points: 'points' in item && Array.isArray(item.points) ? (item.points as number[]) : undefined,
+                        estilo: 'estilo' in item && typeof item.estilo === 'string' ? item.estilo : 'linea',
                       }
                     )
                   }
