@@ -853,13 +853,13 @@ export default function Editor() {
 
   const manejarTransformForma = (e: any, forma: any) => {
   const node = e.target;
-  const rawScaleX = node.scaleX() || 1;
-  const rawScaleY = node.scaleY() || 1;
+  const sx = node.scaleX();
+  const sy = node.scaleY();
   const nx = node.x();
   const ny = node.y();
 
   if (forma.tipo === "circulo") {
-    const factor = Math.max(0.2, Math.min(5, Number(((Math.abs(rawScaleX) + Math.abs(rawScaleY)) / 2).toFixed(3))));
+    const factor = Math.max(0.2, Math.min(6, Number(((Math.abs(sx || 1) + Math.abs(sy || 1)) / 2).toFixed(3))));
     node.scaleX(1);
     node.scaleY(1);
     setFormas((prev) =>
@@ -869,11 +869,12 @@ export default function Editor() {
           ...f,
           x: nx,
           y: ny,
-          radius: Math.max(10, Math.min(260, Number(((f.radius || 38) * factor).toFixed(2)))),
-          escalaNivel: Math.max(0.2, Math.min(5, Number(((f.escalaNivel || 1) * factor).toFixed(2)))),
+          radius: Math.max(10, Math.min(280, Number(((f.radius || 38) * factor).toFixed(2)))),
+          escalaNivel: Math.max(0.2, Math.min(6, Number(((f.escalaNivel || 1) * factor).toFixed(2)))),
         };
       })
     );
+    if (trRef.current) trRef.current.forceUpdate();
     return;
   }
 
@@ -889,16 +890,17 @@ export default function Editor() {
           ...f,
           x: nx,
           y: ny,
-          width: Math.max(15, Math.min(450, Number((baseW * Math.abs(rawScaleX)).toFixed(2)))),
-          height: Math.max(15, Math.min(450, Number((baseH * Math.abs(rawScaleY)).toFixed(2)))),
+          width: Math.max(15, Math.min(460, Number((baseW * Math.abs(sx || 1)).toFixed(2)))),
+          height: Math.max(15, Math.min(460, Number((baseH * Math.abs(sy || 1)).toFixed(2)))),
         };
       })
     );
+    if (trRef.current) trRef.current.forceUpdate();
     return;
   }
 
   if (forma.tipo === "triangulo" || forma.tipo === "rombo") {
-    const factor = Math.max(0.2, Math.min(5, Number(((Math.abs(rawScaleX) + Math.abs(rawScaleY)) / 2).toFixed(3))));
+    const factor = Math.max(0.2, Math.min(6, Number(((Math.abs(sx || 1) + Math.abs(sy || 1)) / 2).toFixed(3))));
     node.scaleX(1);
     node.scaleY(1);
     setFormas((prev) =>
@@ -908,38 +910,17 @@ export default function Editor() {
           ...f,
           x: nx,
           y: ny,
-          radius: Math.max(10, Math.min(260, Number(((f.radius || 40) * factor).toFixed(2)))),
-          escalaNivel: Math.max(0.2, Math.min(5, Number(((f.escalaNivel || 1) * factor).toFixed(2)))),
+          radius: Math.max(10, Math.min(280, Number(((f.radius || 40) * factor).toFixed(2)))),
+          escalaNivel: Math.max(0.2, Math.min(6, Number(((f.escalaNivel || 1) * factor).toFixed(2)))),
         };
       })
     );
+    if (trRef.current) trRef.current.forceUpdate();
     return;
   }
 
-  if ((forma.tipo === "linea" || forma.tipo === "flecha" || forma.tipo === "flecha_doble") && Array.isArray(forma.points)) {
-    const sx = Math.abs(rawScaleX) || 1;
-    const sy = Math.abs(rawScaleY) || 1;
-    node.scaleX(1);
-    node.scaleY(1);
-    const nuevosPuntos = forma.points.map((pt: number, idx: number) =>
-      Number((pt * (idx % 2 === 0 ? sx : sy)).toFixed(2))
-    );
-    setFormas((prev) =>
-      prev.map((f) => {
-        if (f.id !== forma.id) return f;
-        return {
-          ...f,
-          x: nx,
-          y: ny,
-          points: nuevosPuntos,
-        };
-      })
-    );
-    return;
-  }
-
-  const nextScaleX = Number((rawScaleX || 1).toFixed(3));
-  const nextScaleY = Number((rawScaleY || 1).toFixed(3));
+  const nextScaleX = Number((sx || 1).toFixed(4));
+  const nextScaleY = Number((sy || 1).toFixed(4));
 
   setFormas((prev) =>
     prev.map((f) => {
@@ -954,16 +935,23 @@ export default function Editor() {
       };
     })
   );
+  if (trRef.current) trRef.current.forceUpdate();
 };
 
 const renderFormaEnLienzo = (forma: any) => {
-  const esPathEscalado = forma.tipo === "corazon" || Boolean(forma.path);
+  const usaEscalaDirecta =
+    forma.tipo === "corazon" ||
+    forma.tipo === "estrella" ||
+    forma.tipo === "linea" ||
+    forma.tipo === "flecha" ||
+    forma.tipo === "flecha_doble" ||
+    Boolean(forma.path);
 
   const commonProps = {
     id: `elem-${forma.id}`,
     x: forma.x,
     y: forma.y,
-    ...(esPathEscalado
+    ...(usaEscalaDirecta
       ? {
           scaleX: forma.scaleX || 1,
           scaleY: forma.scaleY || 1,
@@ -1599,6 +1587,7 @@ const renderFormaEnLienzo = (forma: any) => {
     </div>
   );
 }
+
 
 
 
