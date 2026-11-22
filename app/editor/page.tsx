@@ -1484,6 +1484,60 @@ const renderImagenEnLienzo = (img: any) => {
                       />
                       <span className="text-[11px] text-slate-200 w-9 text-right">{activo.fontSize || 22}px</span>
                     </div>
+                    <div className="flex items-center justify-between gap-2 pt-1">
+                      <label className="flex items-center gap-1 text-[11px] text-slate-300">
+                        <input
+                          type="color"
+                          value={activo.fill || colorTexto || "#0f172a"}
+                          onChange={(e) => {
+                            const col = e.target.value;
+                            setCuadrosTexto((prev) =>
+                              prev.map((item: any) =>
+                                item.id === activo.id
+                                  ? { ...item, fill: col, usarDegradado: false, usarEstiloPropio: true }
+                                  : item
+                              )
+                            );
+                          }}
+                          className="w-6 h-5 rounded cursor-pointer bg-transparent border-0"
+                        />
+                        <span>Color</span>
+                      </label>
+                      <label className="flex items-center gap-1 text-[11px] text-slate-300 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={Boolean(activo.usarDegradado)}
+                          onChange={(e) => {
+                            const deg = e.target.checked;
+                            setCuadrosTexto((prev) =>
+                              prev.map((item: any) =>
+                                item.id === activo.id
+                                  ? {
+                                      ...item,
+                                      usarDegradado: deg,
+                                      grad1: item.grad1 || colorDegradado1 || "#FF007F",
+                                      grad2: item.grad2 || colorDegradado2 || "#00F0FF",
+                                    }
+                                  : item
+                              )
+                            );
+                          }}
+                        />
+                        <span>Degradado</span>
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const idBorrar = activo.id;
+                          setCuadrosTexto((prev) => prev.filter((item: any) => item.id !== idBorrar));
+                          setCapas((prev) => prev.filter((c: any) => c.id !== idBorrar));
+                          setSeleccionadoId(999);
+                        }}
+                        className="px-2 py-0.5 rounded bg-rose-600 hover:bg-rose-500 text-white text-[11px]"
+                      >
+                        Quitar
+                      </button>
+                    </div>
                   </div>
                 );
               })()}
