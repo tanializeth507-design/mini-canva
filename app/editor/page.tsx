@@ -1556,7 +1556,7 @@ const renderFormaEnLienzo = (forma: any) => {
                     "bottom-right",
                   ]}
                   boundBoxFunc={(oldBox, newBox) => {
-                    if (Math.abs(newBox.width) < 15 || Math.abs(newBox.height) < 15) {
+                    if (Math.abs(newBox.width) < 2 || Math.abs(newBox.height) < 2) {
                       return oldBox;
                     }
                     return newBox;
@@ -1570,6 +1570,7 @@ const renderFormaEnLienzo = (forma: any) => {
     </div>
   );
 }
+
 
 
 
