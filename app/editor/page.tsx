@@ -853,13 +853,13 @@ export default function Editor() {
 
   const manejarTransformForma = (e: any, forma: any) => {
   const node = e.target;
-  const sx = node.scaleX();
-  const sy = node.scaleY();
+  const rawScaleX = node.scaleX() || 1;
+  const rawScaleY = node.scaleY() || 1;
   const nx = node.x();
   const ny = node.y();
 
   if (forma.tipo === "circulo") {
-    const factor = Math.max(0.2, Math.min(6, Number(((Math.abs(sx || 1) + Math.abs(sy || 1)) / 2).toFixed(3))));
+    const factor = Math.max(0.15, Math.min(8, Number(((Math.abs(rawScaleX) + Math.abs(rawScaleY)) / 2).toFixed(3))));
     node.scaleX(1);
     node.scaleY(1);
     setFormas((prev) =>
@@ -869,18 +869,19 @@ export default function Editor() {
           ...f,
           x: nx,
           y: ny,
-          radius: Math.max(10, Math.min(280, Number(((f.radius || 38) * factor).toFixed(2)))),
-          escalaNivel: Math.max(0.2, Math.min(6, Number(((f.escalaNivel || 1) * factor).toFixed(2)))),
+          radius: Math.max(8, Math.min(400, Number(((f.radius || 38) * factor).toFixed(2)))),
+          escalaNivel: Math.max(0.15, Math.min(8, Number(((f.escalaNivel || 1) * factor).toFixed(2)))),
         };
       })
     );
-    if (trRef.current) trRef.current.forceUpdate();
     return;
   }
 
   if (forma.tipo === "cuadrado") {
     const baseW = forma.width || 80;
     const baseH = forma.height || 80;
+    const signoX = rawScaleX < 0 ? -1 : 1;
+    const signoY = rawScaleY < 0 ? -1 : 1;
     node.scaleX(1);
     node.scaleY(1);
     setFormas((prev) =>
@@ -890,17 +891,18 @@ export default function Editor() {
           ...f,
           x: nx,
           y: ny,
-          width: Math.max(15, Math.min(460, Number((baseW * Math.abs(sx || 1)).toFixed(2)))),
-          height: Math.max(15, Math.min(460, Number((baseH * Math.abs(sy || 1)).toFixed(2)))),
+          width: Math.max(12, Math.min(800, Number((baseW * Math.abs(rawScaleX)).toFixed(2)))),
+          height: Math.max(12, Math.min(800, Number((baseH * Math.abs(rawScaleY)).toFixed(2)))),
+          scaleX: signoX,
+          scaleY: signoY,
         };
       })
     );
-    if (trRef.current) trRef.current.forceUpdate();
     return;
   }
 
   if (forma.tipo === "triangulo" || forma.tipo === "rombo") {
-    const factor = Math.max(0.2, Math.min(6, Number(((Math.abs(sx || 1) + Math.abs(sy || 1)) / 2).toFixed(3))));
+    const factor = Math.max(0.15, Math.min(8, Number(((Math.abs(rawScaleX) + Math.abs(rawScaleY)) / 2).toFixed(3))));
     node.scaleX(1);
     node.scaleY(1);
     setFormas((prev) =>
@@ -910,17 +912,16 @@ export default function Editor() {
           ...f,
           x: nx,
           y: ny,
-          radius: Math.max(10, Math.min(280, Number(((f.radius || 40) * factor).toFixed(2)))),
-          escalaNivel: Math.max(0.2, Math.min(6, Number(((f.escalaNivel || 1) * factor).toFixed(2)))),
+          radius: Math.max(8, Math.min(400, Number(((f.radius || 40) * factor).toFixed(2)))),
+          escalaNivel: Math.max(0.15, Math.min(8, Number(((f.escalaNivel || 1) * factor).toFixed(2)))),
         };
       })
     );
-    if (trRef.current) trRef.current.forceUpdate();
     return;
   }
 
-  const nextScaleX = Number((sx || 1).toFixed(4));
-  const nextScaleY = Number((sy || 1).toFixed(4));
+  const nextScaleX = Number(rawScaleX.toFixed(4));
+  const nextScaleY = Number(rawScaleY.toFixed(4));
 
   setFormas((prev) =>
     prev.map((f) => {
@@ -935,7 +936,6 @@ export default function Editor() {
       };
     })
   );
-  if (trRef.current) trRef.current.forceUpdate();
 };
 
 const renderFormaEnLienzo = (forma: any) => {
@@ -956,7 +956,10 @@ const renderFormaEnLienzo = (forma: any) => {
           scaleX: forma.scaleX || 1,
           scaleY: forma.scaleY || 1,
         }
-      : {}),
+      : {
+          scaleX: forma.scaleX || 1,
+          scaleY: forma.scaleY || 1,
+        }),
     draggable: true,
     onClick: () => setSeleccionadoId(forma.id),
     onTap: () => setSeleccionadoId(forma.id),
@@ -964,11 +967,6 @@ const renderFormaEnLienzo = (forma: any) => {
       const nx = e.target.x();
       const ny = e.target.y();
       setFormas((prev) => prev.map((f) => (f.id === forma.id ? { ...f, x: nx, y: ny } : f)));
-    },
-    onTransform: () => {
-      if (trRef.current) {
-        trRef.current.forceUpdate();
-      }
     },
     onTransformEnd: (e: any) => manejarTransformForma(e, forma),
   };
@@ -1587,6 +1585,7 @@ const renderFormaEnLienzo = (forma: any) => {
     </div>
   );
 }
+
 
 
 
