@@ -1068,17 +1068,33 @@ const renderFormaEnLienzo = (forma: any) => {
         const sy = Math.abs(node.scaleY() || 1);
         const nx = Math.round(node.x());
         const ny = Math.round(node.y());
-        const factor = Math.abs(sx - 1) > Math.abs(sy - 1) ? sx : sy;
-        const nuevoTam = Math.max(12, Math.min(300, Math.round(tam * (factor || 1))));
-        node.scaleX(1);
-        node.scaleY(1);
-        node.x(nx);
-        node.y(ny);
-        setTextoPos({ x: nx, y: ny });
-        setTamanoTexto(nuevoTam);
-        setTimeout(() => {
+
+        if (Math.abs(sx - sy) > 0.08) {
+          const clampedSx = Math.max(0.25, Math.min(5, Number(sx.toFixed(2))));
+          const clampedSy = Math.max(0.25, Math.min(5, Number(sy.toFixed(2))));
+          node.scaleX(clampedSx);
+          node.scaleY(clampedSy);
+          node.x(nx);
+          node.y(ny);
+          setTextoPos({ x: nx, y: ny });
+          const tamAjustado = Math.max(10, Math.min(350, Math.round(tam * clampedSy)));
+          setTamanoTexto(tamAjustado);
+          node.scaleY(1);
+        } else {
+          const escala = Math.max(0.2, Math.min(6, sy || sx || 1));
+          const nuevoTam = Math.max(10, Math.min(350, Math.round(tam * escala)));
+          node.scaleX(1);
+          node.scaleY(1);
+          node.x(nx);
+          node.y(ny);
+          setTextoPos({ x: nx, y: ny });
+          setTamanoTexto(nuevoTam);
+        }
+
+        requestAnimationFrame(() => {
           trRef.current?.forceUpdate();
-        }, 0);
+          stageRef.current?.batchDraw();
+        });
       }}
     />
   );
@@ -1717,6 +1733,7 @@ const renderImagenEnLienzo = (img: any) => {
     </div>
   );
 }
+
 
 
 
