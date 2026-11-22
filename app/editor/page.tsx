@@ -859,7 +859,7 @@ export default function Editor() {
   const ny = node.y();
 
   if (forma.tipo === "circulo") {
-    const factor = Math.max(0.15, Math.min(8, Number(((Math.abs(sx) + Math.abs(sy)) / 2).toFixed(3))));
+    const factor = Math.max(0.1, Math.min(12, Number(((Math.abs(sx) + Math.abs(sy)) / 2).toFixed(4))));
     node.scaleX(1);
     node.scaleY(1);
     setFormas((prev) =>
@@ -869,8 +869,8 @@ export default function Editor() {
           ...f,
           x: nx,
           y: ny,
-          radius: Math.max(8, Math.min(400, Number(((f.radius || 38) * factor).toFixed(2)))),
-          escalaNivel: Math.max(0.15, Math.min(8, Number(((f.escalaNivel || 1) * factor).toFixed(2)))),
+          radius: Math.max(4, Math.min(800, Number(((f.radius || 38) * factor).toFixed(2)))),
+          escalaNivel: Math.max(0.1, Math.min(12, Number(((f.escalaNivel || 1) * factor).toFixed(2)))),
         };
       })
     );
@@ -891,8 +891,8 @@ export default function Editor() {
           ...f,
           x: nx,
           y: ny,
-          width: Math.max(12, Math.min(800, Number((baseW * Math.abs(sx)).toFixed(2)))),
-          height: Math.max(12, Math.min(800, Number((baseH * Math.abs(sy)).toFixed(2)))),
+          width: Math.max(4, Math.min(1200, Number((baseW * Math.abs(sx)).toFixed(2)))),
+          height: Math.max(4, Math.min(1200, Number((baseH * Math.abs(sy)).toFixed(2)))),
           scaleX: signoX,
           scaleY: signoY,
         };
@@ -902,7 +902,7 @@ export default function Editor() {
   }
 
   if (forma.tipo === "triangulo" || forma.tipo === "rombo") {
-    const factor = Math.max(0.15, Math.min(8, Number(((Math.abs(sx) + Math.abs(sy)) / 2).toFixed(3))));
+    const factor = Math.max(0.1, Math.min(12, Number(((Math.abs(sx) + Math.abs(sy)) / 2).toFixed(4))));
     node.scaleX(1);
     node.scaleY(1);
     setFormas((prev) =>
@@ -912,8 +912,8 @@ export default function Editor() {
           ...f,
           x: nx,
           y: ny,
-          radius: Math.max(8, Math.min(400, Number(((f.radius || 40) * factor).toFixed(2)))),
-          escalaNivel: Math.max(0.15, Math.min(8, Number(((f.escalaNivel || 1) * factor).toFixed(2)))),
+          radius: Math.max(4, Math.min(800, Number(((f.radius || 40) * factor).toFixed(2)))),
+          escalaNivel: Math.max(0.1, Math.min(12, Number(((f.escalaNivel || 1) * factor).toFixed(2)))),
         };
       })
     );
@@ -1545,6 +1545,7 @@ const renderFormaEnLienzo = (forma: any) => {
                 <Transformer
                   ref={trRef}
                   rotateEnabled={true}
+                ignoreStroke={true}
                   enabledAnchors={[
                     "top-left",
                     "top-center",
@@ -1570,6 +1571,7 @@ const renderFormaEnLienzo = (forma: any) => {
     </div>
   );
 }
+
 
 
 
