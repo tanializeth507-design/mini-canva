@@ -853,13 +853,13 @@ export default function Editor() {
 
   const manejarTransformForma = (e: any, forma: any) => {
   const node = e.target;
-  const rawScaleX = node.scaleX() || 1;
-  const rawScaleY = node.scaleY() || 1;
+  const sx = node.scaleX() || 1;
+  const sy = node.scaleY() || 1;
   const nx = node.x();
   const ny = node.y();
 
   if (forma.tipo === "circulo") {
-    const factor = Math.max(0.15, Math.min(8, Number(((Math.abs(rawScaleX) + Math.abs(rawScaleY)) / 2).toFixed(3))));
+    const factor = Math.max(0.15, Math.min(8, Number(((Math.abs(sx) + Math.abs(sy)) / 2).toFixed(3))));
     node.scaleX(1);
     node.scaleY(1);
     setFormas((prev) =>
@@ -880,8 +880,8 @@ export default function Editor() {
   if (forma.tipo === "cuadrado") {
     const baseW = forma.width || 80;
     const baseH = forma.height || 80;
-    const signoX = rawScaleX < 0 ? -1 : 1;
-    const signoY = rawScaleY < 0 ? -1 : 1;
+    const signoX = sx < 0 ? -1 : 1;
+    const signoY = sy < 0 ? -1 : 1;
     node.scaleX(1);
     node.scaleY(1);
     setFormas((prev) =>
@@ -891,8 +891,8 @@ export default function Editor() {
           ...f,
           x: nx,
           y: ny,
-          width: Math.max(12, Math.min(800, Number((baseW * Math.abs(rawScaleX)).toFixed(2)))),
-          height: Math.max(12, Math.min(800, Number((baseH * Math.abs(rawScaleY)).toFixed(2)))),
+          width: Math.max(12, Math.min(800, Number((baseW * Math.abs(sx)).toFixed(2)))),
+          height: Math.max(12, Math.min(800, Number((baseH * Math.abs(sy)).toFixed(2)))),
           scaleX: signoX,
           scaleY: signoY,
         };
@@ -902,7 +902,7 @@ export default function Editor() {
   }
 
   if (forma.tipo === "triangulo" || forma.tipo === "rombo") {
-    const factor = Math.max(0.15, Math.min(8, Number(((Math.abs(rawScaleX) + Math.abs(rawScaleY)) / 2).toFixed(3))));
+    const factor = Math.max(0.15, Math.min(8, Number(((Math.abs(sx) + Math.abs(sy)) / 2).toFixed(3))));
     node.scaleX(1);
     node.scaleY(1);
     setFormas((prev) =>
@@ -920,8 +920,8 @@ export default function Editor() {
     return;
   }
 
-  const nextScaleX = Number(rawScaleX.toFixed(4));
-  const nextScaleY = Number(rawScaleY.toFixed(4));
+  const nextScaleX = Number(sx.toFixed(4));
+  const nextScaleY = Number(sy.toFixed(4));
 
   setFormas((prev) =>
     prev.map((f) => {
@@ -939,27 +939,12 @@ export default function Editor() {
 };
 
 const renderFormaEnLienzo = (forma: any) => {
-  const usaEscalaDirecta =
-    forma.tipo === "corazon" ||
-    forma.tipo === "estrella" ||
-    forma.tipo === "linea" ||
-    forma.tipo === "flecha" ||
-    forma.tipo === "flecha_doble" ||
-    Boolean(forma.path);
-
   const commonProps = {
     id: `elem-${forma.id}`,
     x: forma.x,
     y: forma.y,
-    ...(usaEscalaDirecta
-      ? {
-          scaleX: forma.scaleX || 1,
-          scaleY: forma.scaleY || 1,
-        }
-      : {
-          scaleX: forma.scaleX || 1,
-          scaleY: forma.scaleY || 1,
-        }),
+    scaleX: forma.scaleX || 1,
+    scaleY: forma.scaleY || 1,
     draggable: true,
     onClick: () => setSeleccionadoId(forma.id),
     onTap: () => setSeleccionadoId(forma.id),
@@ -1585,6 +1570,7 @@ const renderFormaEnLienzo = (forma: any) => {
     </div>
   );
 }
+
 
 
 
