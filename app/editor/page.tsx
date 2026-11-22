@@ -1498,8 +1498,9 @@ const renderImagenEnLienzo = (img: any) => {
                                 item.id === activo.id
                                   ? {
                                       ...item,
+                                      texto: item.texto ?? activo.texto ?? "",
                                       usarDegradado: deg,
-                                      fill: deg ? undefined : (item.fill || colorTexto || "#0f172a"),
+                                      fill: deg ? "" : (item.fill || colorTexto || "#0f172a"),
                                       grad1: item.grad1 || colorDegradado1 || "#FF007F",
                                       grad2: item.grad2 || colorDegradado2 || "#00F0FF",
                                     }
@@ -1526,13 +1527,19 @@ const renderImagenEnLienzo = (img: any) => {
                     <div className="flex items-center gap-2 pt-1">
                       <span className="text-[11px] text-slate-300">Fuente:</span>
                       <select
-                        value={activo.fontFamily || fuenteTexto || "Arial"}
+                        value={activo.fontFamily || "Arial"}
                         onChange={(e) => {
                           const fnt = e.target.value;
-                          setFuenteTexto(fnt);
                           setCuadrosTexto((prev) =>
                             prev.map((item: any) =>
-                              item.id === activo.id ? { ...item, fontFamily: fnt, usarEstiloPropio: true } : item
+                              item.id === activo.id
+                                ? {
+                                    ...item,
+                                    texto: item.texto && item.texto.length > 0 ? item.texto : (activo.texto || "Texto"),
+                                    fontFamily: fnt,
+                                    usarEstiloPropio: true,
+                                  }
+                                : item
                             )
                           );
                           requestAnimationFrame(() => {
@@ -2019,6 +2026,7 @@ const renderImagenEnLienzo = (img: any) => {
     </div>
   );
 }
+
 
 
 
