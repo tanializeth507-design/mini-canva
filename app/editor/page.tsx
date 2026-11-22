@@ -461,6 +461,44 @@ export default function Editor() {
   }, [texturaFondo, colorFondo]);
 
   useEffect(() => {
+    if (typeof document === "undefined") return;
+    let cancelado = false;
+    const redibujar = () => {
+      if (cancelado) return;
+      requestAnimationFrame(() => {
+        trRef.current?.forceUpdate();
+        stageRef.current?.batchDraw();
+      });
+    };
+    redibujar();
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(redibujar).catch(() => {});
+    }
+    return () => {
+      cancelado = true;
+    };
+  }, [fuenteTexto, colorTexto, usarDegradado, colorDegradado1, colorDegradado2, sombraColor, sombraBlur, sombraOpacidad, grosorContorno, colorContorno]);
+
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    let cancelado = false;
+    const redibujar = () => {
+      if (cancelado) return;
+      requestAnimationFrame(() => {
+        trRef.current?.forceUpdate();
+        stageRef.current?.batchDraw();
+      });
+    };
+    redibujar();
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(redibujar).catch(() => {});
+    }
+    return () => {
+      cancelado = true;
+    };
+  }, [fuenteTexto, colorTexto, usarDegradado, colorDegradado1, colorDegradado2, sombraColor, sombraBlur, sombraOpacidad, grosorContorno, colorContorno]);
+
+  useEffect(() => {
     if (seleccionadoId !== null && trRef.current && stageRef.current) {
       const node = stageRef.current.findOne(`#elem-${seleccionadoId}`);
       if (node) {
@@ -999,7 +1037,6 @@ const renderFormaEnLienzo = (forma: any) => {
 
   return (
     <Text
-      key={`txt-${tam}-${fuente}-${usarDegradado ? 1 : 0}`}
       id="elem-999"
       text={texto}
       x={xPos}
@@ -1026,6 +1063,7 @@ const renderFormaEnLienzo = (forma: any) => {
         setTextoPos({ x: nx, y: ny });
         requestAnimationFrame(() => {
           trRef.current?.forceUpdate();
+          stageRef.current?.batchDraw();
         });
       }}
       onTransformEnd={(e: any) => {
@@ -1042,6 +1080,7 @@ const renderFormaEnLienzo = (forma: any) => {
         setTamanoTexto(nuevoTam);
         requestAnimationFrame(() => {
           trRef.current?.forceUpdate();
+          stageRef.current?.batchDraw();
         });
       }}
     />
@@ -1681,6 +1720,8 @@ const renderImagenEnLienzo = (img: any) => {
     </div>
   );
 }
+
+
 
 
 
