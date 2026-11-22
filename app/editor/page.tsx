@@ -1026,7 +1026,7 @@ const renderFormaEnLienzo = (forma: any) => {
 };
 
 
-  const renderTextoEnLienzo = () => {
+const renderTextoEnLienzo = () => {
   if (!texto) return null;
   const xPos = Number.isFinite(Number(textoPos?.x)) ? Number(textoPos.x) : 100;
   const yPos = Number.isFinite(Number(textoPos?.y)) ? Number(textoPos.y) : 300;
@@ -1070,8 +1070,8 @@ const renderFormaEnLienzo = (forma: any) => {
         const ny = Math.round(node.y());
 
         if (Math.abs(sy - 1) > 0.04 && Math.abs(sx - 1) <= 0.04) {
-          const factorVert = sy > 1 ? Math.min(1.25, 1 + (sy - 1) * 0.35) : Math.max(0.65, sy);
-          const nuevoTamVertical = Math.max(14, Math.min(120, Math.round(tam * factorVert)));
+          const factorVert = sy > 1 ? Math.min(1.08, 1 + (sy - 1) * 0.15) : Math.max(0.65, sy);
+          const nuevoTamVertical = Math.max(14, Math.min(75, Math.round(tam * factorVert)));
           node.scaleX(1);
           node.scaleY(1);
           node.x(nx);
