@@ -1070,16 +1070,12 @@ const renderTextoEnLienzo = () => {
         const ny = Math.round(node.y());
 
         if (Math.abs(sy - 1) > 0.04 && Math.abs(sx - 1) <= 0.04) {
-          const tamVertical = sy > 1
-            ? Math.min(48, Math.max(14, Math.min(tam, 48)))
-            : Math.max(14, Math.min(48, Math.round(tam * Math.max(0.65, sy))));
+          const syLibre = Number(Math.max(0.35, Math.min(3.5, sy)).toFixed(2));
           node.scaleX(1);
-          node.scaleY(1);
-          node.fontSize(tamVertical);
+          node.scaleY(syLibre);
           node.x(nx);
           node.y(ny);
           setTextoPos({ x: nx, y: ny });
-          setTamanoTexto(tamVertical);
           requestAnimationFrame(() => {
             trRef.current?.nodes([node]);
             trRef.current?.forceUpdate();
@@ -1096,8 +1092,8 @@ const renderTextoEnLienzo = () => {
           node.y(ny);
           setTextoPos({ x: nx, y: ny });
         } else {
-          const escala = Math.max(0.25, Math.min(2.5, sy || sx || 1));
-          const nuevoTam = Math.max(14, Math.min(160, Math.round(tam * escala)));
+          const escala = Math.max(0.25, Math.min(3.0, sy || sx || 1));
+          const nuevoTam = Math.max(14, Math.min(200, Math.round(tam * escala)));
           node.scaleX(1);
           node.scaleY(1);
           node.x(nx);
