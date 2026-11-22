@@ -990,8 +990,8 @@ const renderFormaEnLienzo = (forma: any) => {
 
   const renderTextoEnLienzo = () => {
   if (!texto) return null;
-  const xPos = textoPos?.x ?? 100;
-  const yPos = textoPos?.y ?? 300;
+  const xPos = Number.isFinite(Number(textoPos?.x)) ? Number(textoPos.x) : 100;
+  const yPos = Number.isFinite(Number(textoPos?.y)) ? Number(textoPos.y) : 300;
   const tam = Number(tamanoTexto) || 40;
   const fuente = fuenteTexto || "Arial";
   const c1 = colorDegradado1 || "#FF007F";
@@ -999,6 +999,7 @@ const renderFormaEnLienzo = (forma: any) => {
 
   return (
     <Text
+      key={`txt-${tam}-${fuente}-${usarDegradado ? 1 : 0}`}
       id="elem-999"
       text={texto}
       x={xPos}
@@ -1020,18 +1021,28 @@ const renderFormaEnLienzo = (forma: any) => {
       onClick={() => setSeleccionadoId(999)}
       onTap={() => setSeleccionadoId(999)}
       onDragEnd={(e: any) => {
-        setTextoPos({ x: e.target.x(), y: e.target.y() });
+        const nx = Number(e.target.x().toFixed(2));
+        const ny = Number(e.target.y().toFixed(2));
+        setTextoPos({ x: nx, y: ny });
+        requestAnimationFrame(() => {
+          trRef.current?.forceUpdate();
+        });
       }}
       onTransformEnd={(e: any) => {
         const node = e.target;
         const sx = Math.abs(node.scaleX() || 1);
         const sy = Math.abs(node.scaleY() || 1);
+        const nx = Number(node.x().toFixed(2));
+        const ny = Number(node.y().toFixed(2));
         const escala = Math.max(sx, sy);
         const nuevoTam = Math.max(10, Math.min(300, Math.round(tam * escala)));
         node.scaleX(1);
         node.scaleY(1);
-        setTextoPos({ x: node.x(), y: node.y() });
+        setTextoPos({ x: nx, y: ny });
         setTamanoTexto(nuevoTam);
+        requestAnimationFrame(() => {
+          trRef.current?.forceUpdate();
+        });
       }}
     />
   );
@@ -1670,6 +1681,7 @@ const renderImagenEnLienzo = (img: any) => {
     </div>
   );
 }
+
 
 
 
