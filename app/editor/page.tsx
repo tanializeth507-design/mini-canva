@@ -1499,12 +1499,16 @@ const renderImagenEnLienzo = (img: any) => {
                                   ? {
                                       ...item,
                                       usarDegradado: deg,
+                                      fill: deg ? undefined : (item.fill || colorTexto || "#0f172a"),
                                       grad1: item.grad1 || colorDegradado1 || "#FF007F",
                                       grad2: item.grad2 || colorDegradado2 || "#00F0FF",
                                     }
                                   : item
                               )
                             );
+                            requestAnimationFrame(() => {
+                              stageRef.current?.batchDraw();
+                            });
                           }}
                         />
                         <span>Degradado</span>
@@ -1522,18 +1526,46 @@ const renderImagenEnLienzo = (img: any) => {
                     <div className="flex items-center gap-2 pt-1">
                       <span className="text-[11px] text-slate-300">Fuente:</span>
                       <select
-                        value={activo.fontFamily || "Arial"}
+                        value={activo.fontFamily || fuenteTexto || "Arial"}
                         onChange={(e) => {
                           const fnt = e.target.value;
-
+                          setFuenteTexto(fnt);
                           setCuadrosTexto((prev) =>
                             prev.map((item: any) =>
-                              item.id === activo.id ? { ...item, fontFamily: fnt } : item
+                              item.id === activo.id ? { ...item, fontFamily: fnt, usarEstiloPropio: true } : item
                             )
                           );
+                          requestAnimationFrame(() => {
+                            stageRef.current?.batchDraw();
+                          });
                         }}
                         className="flex-1 p-1 rounded bg-slate-900 text-white text-xs border border-slate-600"
                       >
+                        {fuenteTexto && ![
+                          "Arial",
+                          "Georgia",
+                          "Times New Roman",
+                          "Courier New",
+                          "Verdana",
+                          "Trebuchet MS",
+                          "Impact",
+                          "Comic Sans MS",
+                        ].includes(fuenteTexto) && (
+                          <option value={fuenteTexto}>{fuenteTexto}</option>
+                        )}
+                        {activo.fontFamily && ![
+                          "Arial",
+                          "Georgia",
+                          "Times New Roman",
+                          "Courier New",
+                          "Verdana",
+                          "Trebuchet MS",
+                          "Impact",
+                          "Comic Sans MS",
+                          fuenteTexto,
+                        ].includes(activo.fontFamily) && (
+                          <option value={activo.fontFamily}>{activo.fontFamily}</option>
+                        )}
                         <option value="Arial">Arial</option>
                         <option value="Georgia">Georgia</option>
                         <option value="Times New Roman">Times New Roman</option>
@@ -1987,6 +2019,7 @@ const renderImagenEnLienzo = (img: any) => {
     </div>
   );
 }
+
 
 
 
