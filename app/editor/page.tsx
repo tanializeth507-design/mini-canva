@@ -1058,30 +1058,27 @@ const renderFormaEnLienzo = (forma: any) => {
       onClick={() => setSeleccionadoId(999)}
       onTap={() => setSeleccionadoId(999)}
       onDragEnd={(e: any) => {
-        const nx = Number(e.target.x().toFixed(2));
-        const ny = Number(e.target.y().toFixed(2));
+        const nx = Math.round(e.target.x());
+        const ny = Math.round(e.target.y());
         setTextoPos({ x: nx, y: ny });
-        requestAnimationFrame(() => {
-          trRef.current?.forceUpdate();
-          stageRef.current?.batchDraw();
-        });
       }}
       onTransformEnd={(e: any) => {
         const node = e.target;
         const sx = Math.abs(node.scaleX() || 1);
         const sy = Math.abs(node.scaleY() || 1);
-        const nx = Number(node.x().toFixed(2));
-        const ny = Number(node.y().toFixed(2));
-        const escala = Math.max(sx, sy);
-        const nuevoTam = Math.max(10, Math.min(300, Math.round(tam * escala)));
+        const nx = Math.round(node.x());
+        const ny = Math.round(node.y());
+        const factor = Math.abs(sx - 1) > Math.abs(sy - 1) ? sx : sy;
+        const nuevoTam = Math.max(12, Math.min(300, Math.round(tam * (factor || 1))));
         node.scaleX(1);
         node.scaleY(1);
+        node.x(nx);
+        node.y(ny);
         setTextoPos({ x: nx, y: ny });
         setTamanoTexto(nuevoTam);
-        requestAnimationFrame(() => {
+        setTimeout(() => {
           trRef.current?.forceUpdate();
-          stageRef.current?.batchDraw();
-        });
+        }, 0);
       }}
     />
   );
@@ -1720,6 +1717,7 @@ const renderImagenEnLienzo = (img: any) => {
     </div>
   );
 }
+
 
 
 
