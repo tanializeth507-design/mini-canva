@@ -1429,22 +1429,6 @@ const renderImagenEnLienzo = (img: any) => {
               >
                 + Agregar cuadro de texto
               </button>
-              <div className="p-2 rounded bg-slate-800/90 border border-pink-500/40 space-y-1.5">
-                <textarea
-                  rows={3}
-                  value={borradorCuadroTexto}
-                  onChange={(e) => setBorradorCuadroTexto(e.target.value)}
-                  placeholder="Escribe aquí lo que quieres poner en el lienzo..."
-                  className="w-full p-1.5 rounded bg-slate-900 text-white text-xs border border-slate-600"
-                />
-                <button
-                  type="button"
-                  onClick={() => anadirTextoAlLienzo()}
-                  className="w-full py-1.5 px-2.5 rounded bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold"
-                >
-                  Añadir texto al lienzo
-                </button>
-              </div>
               {seleccionadoId !== null && seleccionadoId !== 999 && cuadrosTexto.some((ct: any) => ct.id === seleccionadoId) && (() => {
                 const activo = cuadrosTexto.find((ct: any) => ct.id === seleccionadoId);
                 if (!activo) return null;
