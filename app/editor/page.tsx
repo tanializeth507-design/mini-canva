@@ -1660,10 +1660,88 @@ const renderImagenEnLienzo = (img: any) => {
                         className="flex-1 px-1.5 py-0.5 rounded bg-slate-900 text-white text-[11px] border border-slate-600"
                       />
                     </div>
-                  </div>
-                );
-              })()}
+                    <div className="flex items-center justify-between gap-1 pt-1">
+                      <span className="text-[11px] text-slate-300">Alinear:</span>
+                      <div className="flex items-center gap-1">
+                        <button
+                          type="button"
+                          title="Izquierda"
+                          onClick={() => {
+                            setCuadrosTexto((prev) =>
+                              prev.map((item: any) => (item.id === activo.id ? { ...item, align: "left" } : item))
+                            );
+                            requestAnimationFrame(() => stageRef.current?.batchDraw());
+                          }}
+                            className={"p-1 rounded border " + ((activo.align || "left") === "left" ? "bg-pink-600 text-white border-pink-400" : "bg-slate-900 text-slate-200 border-slate-700")}
+                        >
+                          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round">
+                            <line x1="2" y1="3" x2="14" y2="3" />
+                            <line x1="2" y1="6.5" x2="10" y2="6.5" />
+                            <line x1="2" y1="10" x2="13" y2="10" />
+                            <line x1="2" y1="13.5" x2="9" y2="13.5" />
+                          </svg>
+                        </button>
+                        <button
+                          type="button"
+                          title="Centrado"
+                          onClick={() => {
+                            setCuadrosTexto((prev) =>
+                              prev.map((item: any) => (item.id === activo.id ? { ...item, align: "center" } : item))
+                            );
+                            requestAnimationFrame(() => stageRef.current?.batchDraw());
+                          }}
+                            className={"p-1 rounded border " + (activo.align === "center" ? "bg-pink-600 text-white border-pink-400" : "bg-slate-900 text-slate-200 border-slate-700")}
+                        >
+                          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round">
+                            <line x1="2" y1="3" x2="14" y2="3" />
+                            <line x1="4.5" y1="6.5" x2="11.5" y2="6.5" />
+                            <line x1="3" y1="10" x2="13" y2="10" />
+                            <line x1="5" y1="13.5" x2="11" y2="13.5" />
+                          </svg>
+                        </button>
+                        <button
+                          type="button"
+                          title="Derecha"
+                          onClick={() => {
+                            setCuadrosTexto((prev) =>
+                              prev.map((item: any) => (item.id === activo.id ? { ...item, align: "right" } : item))
+                            );
+                            requestAnimationFrame(() => stageRef.current?.batchDraw());
+                          }}
+                            className={"p-1 rounded border " + (activo.align === "right" ? "bg-pink-600 text-white border-pink-400" : "bg-slate-900 text-slate-200 border-slate-700")}
+                        >
+                          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round">
+                            <line x1="2" y1="3" x2="14" y2="3" />
+                            <line x1="6" y1="6.5" x2="14" y2="6.5" />
+                            <line x1="3" y1="10" x2="14" y2="10" />
+                            <line x1="7" y1="13.5" x2="14" y2="13.5" />
+                          </svg>
+                        </button>
+                        <button
+                          type="button"
+                          title="Justificado"
+                          onClick={() => {
+                            setCuadrosTexto((prev) =>
+                              prev.map((item: any) => (item.id === activo.id ? { ...item, align: "justify" } : item))
+                            );
+                            requestAnimationFrame(() => stageRef.current?.batchDraw());
+                          }}
+                            className={"p-1 rounded border " + (activo.align === "justify" ? "bg-pink-600 text-white border-pink-400" : "bg-slate-900 text-slate-200 border-slate-700")}
+                        >
+                          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round">
+                            <line x1="2" y1="3" x2="14" y2="3" />
+                            <line x1="2" y1="6.5" x2="14" y2="6.5" />
+                            <line x1="2" y1="10" x2="14" y2="10" />
+                            <line x1="2" y1="13.5" x2="14" y2="13.5" />
+                          </svg>
+                        </button>
+                      </div>
+                      </div>
+                    </div>
+                  );
+                })()}
             </div>
+
             <input
               type="text"
               value={texto}
@@ -2120,6 +2198,8 @@ const renderImagenEnLienzo = (img: any) => {
     </div>
   );
 }
+
+
 
 
 
