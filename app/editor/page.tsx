@@ -1666,6 +1666,8 @@ const renderImagenEnLienzo = (img: any) => {
                         <option value="Trebuchet MS">Trebuchet MS</option>
                         <option value="Impact">Impact</option>
                         <option value="Comic Sans MS">Comic Sans MS</option>
+                        {fuentesPersonalizadas.map((f) => (<option key={f.id} value={f.nombre || f.id}>{f.nombre} (Personalizada)</option>))}
+
                       </select>
                     </div>
                     <div className="flex items-center gap-1 pt-1">
@@ -2252,6 +2254,8 @@ const renderImagenEnLienzo = (img: any) => {
     </div>
   );
 }
+
+
 
 
 
