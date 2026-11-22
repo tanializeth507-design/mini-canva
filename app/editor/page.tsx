@@ -1070,8 +1070,8 @@ const renderFormaEnLienzo = (forma: any) => {
         const ny = Math.round(node.y());
 
         if (Math.abs(sy - 1) > 0.04 && Math.abs(sx - 1) <= 0.04) {
-          const sySuave = Math.max(0.4, Math.min(2.0, sy));
-          const nuevoTamVertical = Math.max(12, Math.min(220, Math.round(tam * sySuave)));
+          const factorVert = sy > 1 ? Math.min(1.25, 1 + (sy - 1) * 0.35) : Math.max(0.65, sy);
+          const nuevoTamVertical = Math.max(14, Math.min(120, Math.round(tam * factorVert)));
           node.scaleX(1);
           node.scaleY(1);
           node.x(nx);
@@ -1086,8 +1086,8 @@ const renderFormaEnLienzo = (forma: any) => {
           node.y(ny);
           setTextoPos({ x: nx, y: ny });
         } else {
-          const escala = Math.max(0.25, Math.min(3.0, sy || sx || 1));
-          const nuevoTam = Math.max(12, Math.min(220, Math.round(tam * escala)));
+          const escala = Math.max(0.25, Math.min(2.5, sy || sx || 1));
+          const nuevoTam = Math.max(14, Math.min(160, Math.round(tam * escala)));
           node.scaleX(1);
           node.scaleY(1);
           node.x(nx);
@@ -1738,6 +1738,7 @@ const renderImagenEnLienzo = (img: any) => {
     </div>
   );
 }
+
 
 
 
