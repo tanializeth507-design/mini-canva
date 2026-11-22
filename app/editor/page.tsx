@@ -1396,6 +1396,57 @@ const renderImagenEnLienzo = (img: any) => {
 
           <div className="border-t border-slate-700 pt-4 space-y-2.5">
             <h2 className="text-xs font-bold uppercase tracking-wider text-slate-400">TEXTO</h2>
+            <div className="my-2 space-y-2">
+              <button
+                type="button"
+                onClick={agregarCuadroTexto}
+                className="w-full py-1.5 px-2.5 rounded bg-pink-600 hover:bg-pink-500 text-white text-xs font-medium"
+              >
+                + Agregar cuadro de texto
+              </button>
+              {seleccionadoId !== null && seleccionadoId !== 999 && cuadrosTexto.some((ct: any) => ct.id === seleccionadoId) && (() => {
+                const activo = cuadrosTexto.find((ct: any) => ct.id === seleccionadoId);
+                if (!activo) return null;
+                return (
+                  <div className="p-2 rounded bg-slate-800/90 border border-pink-500/40 space-y-1.5">
+                    <div className="text-[11px] text-pink-200 font-medium">Cuadro de texto seleccionado</div>
+                    <textarea
+                      rows={4}
+                      value={activo.texto}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setCuadrosTexto((prev) =>
+                          prev.map((item: any) =>
+                            item.id === activo.id ? { ...item, texto: val } : item
+                          )
+                        );
+                      }}
+                      className="w-full p-1.5 rounded bg-slate-900 text-white text-xs border border-slate-600"
+                      placeholder="Escribe una carta, párrafo o texto largo..."
+                    />
+                    <div className="flex items-center gap-2">
+                      <span className="text-[11px] text-slate-300">Tamaño:</span>
+                      <input
+                        type="range"
+                        min={12}
+                        max={180}
+                        value={activo.fontSize || 22}
+                        onChange={(e) => {
+                          const fz = Number(e.target.value) || 22;
+                          setCuadrosTexto((prev) =>
+                            prev.map((item: any) =>
+                              item.id === activo.id ? { ...item, fontSize: fz } : item
+                            )
+                          );
+                        }}
+                        className="flex-1"
+                      />
+                      <span className="text-[11px] text-slate-200 w-9 text-right">{activo.fontSize || 22}px</span>
+                    </div>
+                  </div>
+                );
+              })()}
+            </div>
             <input
               type="text"
               value={texto}
