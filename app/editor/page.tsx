@@ -2285,3 +2285,4 @@ const renderImagenEnLienzo = (img: any) => {
 
 
 
+
