@@ -2040,7 +2040,26 @@ const renderImagenEnLienzo = (img: any) => {
               width={cuadro.width || 300}
               fontSize={cuadro.fontSize || 28}
               fontFamily={cuadro.fontFamily || fuenteTexto || "Arial"}
-              fill={cuadro.fill || "#0f172a"}
+              fill={cuadro.usarDegradado ? "" : (cuadro.fill || colorTexto || "#0f172a")}
+              fillLinearGradientStartPoint={cuadro.usarDegradado ? { x: 0, y: 0 } : undefined}
+              fillLinearGradientEndPoint={
+                cuadro.usarDegradado
+                  ? {
+                      x: Math.max(120, cuadro.width || ((cuadro.texto || "texto").length * (cuadro.fontSize || 28) * 0.6)),
+                      y: Math.max(32, (cuadro.fontSize || 28) * 1.15),
+                    }
+                  : undefined
+              }
+              fillLinearGradientColorStops={
+                cuadro.usarDegradado
+                  ? [
+                      0,
+                      cuadro.grad1 || colorDegradado1 || "#FF007F",
+                      1,
+                      cuadro.grad2 || colorDegradado2 || "#00F0FF",
+                    ]
+                  : undefined
+              }
               scaleX={cuadro.scaleX || 1}
               scaleY={cuadro.scaleY || 1}
               wrap="word"
