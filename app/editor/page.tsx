@@ -1535,6 +1535,31 @@ const renderImagenEnLienzo = (img: any) => {
                         }}
                         className="px-2 py-0.5 rounded bg-rose-600 hover:bg-rose-500 text-white text-[11px]"
                       >
+                    <div className="flex items-center gap-2 pt-1">
+                      <span className="text-[11px] text-slate-300">Fuente:</span>
+                      <select
+                        value={activo.fontFamily || fuenteTexto || "Arial"}
+                        onChange={(e) => {
+                          const fnt = e.target.value;
+                          setFuenteTexto(fnt);
+                          setCuadrosTexto((prev) =>
+                            prev.map((item: any) =>
+                              item.id === activo.id ? { ...item, fontFamily: fnt } : item
+                            )
+                          );
+                        }}
+                        className="flex-1 p-1 rounded bg-slate-900 text-white text-xs border border-slate-600"
+                      >
+                        <option value="Arial">Arial</option>
+                        <option value="Georgia">Georgia</option>
+                        <option value="Times New Roman">Times New Roman</option>
+                        <option value="Courier New">Courier New</option>
+                        <option value="Verdana">Verdana</option>
+                        <option value="Trebuchet MS">Trebuchet MS</option>
+                        <option value="Impact">Impact</option>
+                        <option value="Comic Sans MS">Comic Sans MS</option>
+                      </select>
+                    </div>
                         Quitar
                       </button>
                     </div>
