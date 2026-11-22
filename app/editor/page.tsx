@@ -916,6 +916,28 @@ export default function Editor() {
     return;
   }
 
+  if ((forma.tipo === "linea" || forma.tipo === "flecha" || forma.tipo === "flecha_doble") && Array.isArray(forma.points)) {
+    const sx = Math.abs(rawScaleX) || 1;
+    const sy = Math.abs(rawScaleY) || 1;
+    node.scaleX(1);
+    node.scaleY(1);
+    const nuevosPuntos = forma.points.map((pt: number, idx: number) =>
+      Number((pt * (idx % 2 === 0 ? sx : sy)).toFixed(2))
+    );
+    setFormas((prev) =>
+      prev.map((f) => {
+        if (f.id !== forma.id) return f;
+        return {
+          ...f,
+          x: nx,
+          y: ny,
+          points: nuevosPuntos,
+        };
+      })
+    );
+    return;
+  }
+
   const nextScaleX = Math.max(0.25, Math.min(4, Number(((forma.scaleX || 1) * rawScaleX).toFixed(2))));
   const nextScaleY = Math.max(0.25, Math.min(4, Number(((forma.scaleY || 1) * rawScaleY).toFixed(2))));
 
@@ -937,9 +959,6 @@ export default function Editor() {
 const renderFormaEnLienzo = (forma: any) => {
   const esSvgEscalado =
     forma.tipo === "corazon" ||
-    forma.tipo === "linea" ||
-    forma.tipo === "flecha" ||
-    forma.tipo === "flecha_doble" ||
     Boolean(forma.path);
 
   const commonProps = {
@@ -1572,4 +1591,5 @@ const renderFormaEnLienzo = (forma: any) => {
     </div>
   );
 }
+
 
