@@ -1849,6 +1849,70 @@ const renderImagenEnLienzo = (img: any) => {
                   }}
                 />
               </Layer>
+        <Layer listening={true}>
+          {cuadrosTexto.map((cuadro: any) => (
+            <Text
+              key={cuadro.id}
+              id={`elem-`}
+              text={cuadro.texto}
+              x={cuadro.x}
+              y={cuadro.y}
+              width={cuadro.width || 300}
+              fontSize={cuadro.fontSize || 28}
+              fontFamily={cuadro.fontFamily || fuenteTexto || "Arial"}
+              fill={cuadro.fill || "#0f172a"}
+              scaleX={cuadro.scaleX || 1}
+              scaleY={cuadro.scaleY || 1}
+              wrap="word"
+              draggable={true}
+              onClick={() => setSeleccionadoId(cuadro.id)}
+              onTap={() => setSeleccionadoId(cuadro.id)}
+              onDragEnd={(e: any) => {
+                const nx = Math.round(e.target.x());
+                const ny = Math.round(e.target.y());
+                setCuadrosTexto((prev) =>
+                  prev.map((item: any) =>
+                    item.id === cuadro.id ? { ...item, x: nx, y: ny } : item
+                  )
+                );
+              }}
+              onTransformEnd={(e: any) => {
+                const node = e.target;
+                const sx = Math.abs(node.scaleX() || 1);
+                const sy = Math.abs(node.scaleY() || 1);
+                const nx = Math.round(node.x());
+                const ny = Math.round(node.y());
+                const nuevoAncho = Math.max(80, Math.round((node.width() || cuadro.width || 300) * sx));
+                const nuevoTam = Math.max(12, Math.min(240, Math.round((cuadro.fontSize || 28) * sy)));
+                node.scaleX(1);
+                node.scaleY(1);
+                node.width(nuevoAncho);
+                node.x(nx);
+                node.y(ny);
+                setCuadrosTexto((prev) =>
+                  prev.map((item: any) =>
+                    item.id === cuadro.id
+                      ? {
+                          ...item,
+                          x: nx,
+                          y: ny,
+                          width: nuevoAncho,
+                          fontSize: nuevoTam,
+                          scaleX: 1,
+                          scaleY: 1,
+                        }
+                      : item
+                  )
+                );
+                requestAnimationFrame(() => {
+                  trRef.current?.nodes([node]);
+                  trRef.current?.forceUpdate();
+                  stageRef.current?.batchDraw();
+                });
+              }}
+            />
+          ))}
+        </Layer>
             </Stage>
           </div>
         </main>
