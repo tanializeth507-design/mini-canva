@@ -2062,6 +2062,7 @@ const renderImagenEnLienzo = (img: any) => {
               }
               scaleX={cuadro.scaleX || 1}
               scaleY={cuadro.scaleY || 1}
+              align={cuadro.align || "left"}
               wrap="word"
               draggable={true}
               onClick={() => setSeleccionadoId(cuadro.id)}
@@ -2119,6 +2120,7 @@ const renderImagenEnLienzo = (img: any) => {
     </div>
   );
 }
+
 
 
 
