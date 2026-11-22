@@ -372,6 +372,25 @@ export default function Editor() {
   const [sombraOpacidad, setSombraOpacidad] = useState(0.5);
 
   const [formas, setFormas] = useState<any[]>([]);
+  const [cuadrosTexto, setCuadrosTexto] = useState<any[]>([]);
+  const agregarCuadroTexto = () => {
+    const nuevoId = 1000 + Math.floor(Math.random() * 900000);
+    const nuevoCuadro = {
+      id: nuevoId,
+      texto: "Escribe aquí tu texto o carta...",
+      x: 110,
+      y: 140,
+      width: 280,
+      fontSize: 22,
+      fill: "#0f172a",
+      fontFamily: fuenteTexto || "Arial",
+      scaleX: 1,
+      scaleY: 1,
+    };
+    setCuadrosTexto((prev) => [...prev, nuevoCuadro]);
+    setCapas((prev) => [...prev, { id: nuevoId, tipo: "texto" }]);
+    setSeleccionadoId(nuevoId);
+  };
   const [imagenes, setImagenes] = useState<any[]>([]);
   const [seleccionadoId, setSeleccionadoId] = useState<number | null>(null);
   const [colorFondo, setColorFondo] = useState("#ffffff");
@@ -1745,6 +1764,7 @@ const renderImagenEnLienzo = (img: any) => {
     </div>
   );
 }
+
 
 
 
