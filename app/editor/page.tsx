@@ -1070,14 +1070,20 @@ const renderTextoEnLienzo = () => {
         const ny = Math.round(node.y());
 
         if (Math.abs(sy - 1) > 0.04 && Math.abs(sx - 1) <= 0.04) {
-          const factorVert = sy > 1 ? Math.min(1.08, 1 + (sy - 1) * 0.15) : Math.max(0.65, sy);
-          const nuevoTamVertical = Math.max(14, Math.min(75, Math.round(tam * factorVert)));
+          const sySeguro = sy > 1 ? Math.min(1.05, 1 + (sy - 1) * 0.1) : Math.max(0.7, sy);
+          const candidatoVert = sy > 1
+            ? Math.min(68, Math.max(tam, Math.round(tam * sySeguro)))
+            : Math.max(14, Math.min(68, Math.round(tam * sySeguro)));
           node.scaleX(1);
           node.scaleY(1);
+          node.fontSize(candidatoVert);
           node.x(nx);
           node.y(ny);
           setTextoPos({ x: nx, y: ny });
-          setTamanoTexto(nuevoTamVertical);
+          setTamanoTexto(candidatoVert);
+          trRef.current?.forceUpdate();
+          stageRef.current?.batchDraw();
+          return;
         } else if (Math.abs(sx - 1) > 0.04 && Math.abs(sy - 1) <= 0.04) {
           const sxSuave = Number(Math.max(0.4, Math.min(2.2, sx)).toFixed(2));
           node.scaleX(sxSuave);
@@ -1738,6 +1744,7 @@ const renderImagenEnLienzo = (img: any) => {
     </div>
   );
 }
+
 
 
 
