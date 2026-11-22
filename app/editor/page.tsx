@@ -1903,11 +1903,6 @@ const renderImagenEnLienzo = (img: any) => {
                     {f}
                   </option>
                 ))}
-                {fuentesPersonalizadas.map((f) => (
-                  <option key={f.id} value={f.id}>
-                    {f.nombre} (Personalizada)
-                  </option>
-                ))}
               </select>
               <div className="mt-2 space-y-1.5">
                 <div className="flex items-center justify-between gap-1.5">
