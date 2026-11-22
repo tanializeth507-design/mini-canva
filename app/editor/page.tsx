@@ -690,6 +690,52 @@ export default function Editor() {
     };
   };
 
+  const guardarFuenteBuscada = async () => {
+    const nombreLimpio = nuevaFuenteGoogle.trim();
+    if (!nombreLimpio) return;
+
+    const idFuente = `web-${nombreLimpio.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-${Date.now().toString().slice(-4)}`;
+    try {
+      const linkId = `gf-${idFuente}`;
+      if (!document.getElementById(linkId)) {
+        const link = document.createElement("link");
+        link.id = linkId;
+        link.rel = "stylesheet";
+        link.href = `https://fonts.googleapis.com/css2?family=${encodeURIComponent(nombreLimpio)}:wght@400;700&display=swap`;
+        document.head.appendChild(link);
+      }
+      await document.fonts.load(`24px "${nombreLimpio}"`);
+    } catch (err) {
+      console.warn("No se pudo precargar fuente web en Google Fonts:", err);
+    }
+
+    const nuevaFuente = { id: idFuente, nombre: nombreLimpio, fontFamily: nombreLimpio };
+    setFuentesPersonalizadas((prev) => {
+      if (prev.some((f) => f.nombre.toLowerCase() === nombreLimpio.toLowerCase())) return prev;
+      return [...prev, nuevaFuente];
+    });
+    setFuenteTexto(nombreLimpio);
+    setNuevaFuenteGoogle("");
+
+    if (seleccionadoId !== null && seleccionadoId !== 999) {
+      setCuadrosTexto((prev) =>
+        prev.map((ct: any) =>
+          ct.id === seleccionadoId ? { ...ct, fontFamily: nombreLimpio } : ct
+        )
+      );
+    }
+
+    try {
+      const actuales = JSON.parse(localStorage.getItem("misFuentesLocales") || "[]");
+      if (!actuales.some((f: any) => (f.nombre || "").toLowerCase() === nombreLimpio.toLowerCase())) {
+        actuales.push(nuevaFuente);
+        localStorage.setItem("misFuentesLocales", JSON.stringify(actuales));
+      }
+    } catch (err) {
+      console.error("Error guardando fuente en localStorage:", err);
+    }
+  };
+
   const subirFuente = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -1879,9 +1925,22 @@ const renderImagenEnLienzo = (img: any) => {
                   type="text"
                   value={nuevaFuenteGoogle}
                   onChange={(e) => setNuevaFuenteGoogle(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      guardarFuenteBuscada();
+                    }
+                  }}
                   placeholder="Ej. Mi Fuente Bonita"
                   className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-xs text-white"
                 />
+                <button
+                  type="button"
+                  onClick={guardarFuenteBuscada}
+                  className="w-full py-1.5 px-2.5 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white cursor-pointer"
+                >
+                  Guardar fuente
+                </button>
                 <button
                   type="button"
                   disabled={subiendoFuente}
@@ -2198,6 +2257,7 @@ const renderImagenEnLienzo = (img: any) => {
     </div>
   );
 }
+
 
 
 
