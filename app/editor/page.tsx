@@ -1437,7 +1437,7 @@ const renderImagenEnLienzo = (img: any) => {
                     <div className="text-[11px] text-pink-200 font-medium">Cuadro de texto seleccionado</div>
                     <textarea
                       rows={4}
-                      value={activo.texto}
+                      value={activo.texto ?? ""}
                       onChange={(e) => {
                         const val = e.target.value;
                         setCuadrosTexto((prev) =>
@@ -1500,7 +1500,7 @@ const renderImagenEnLienzo = (img: any) => {
                                       ...item,
                                       texto: item.texto ?? activo.texto ?? "",
                                       usarDegradado: deg,
-                                      fill: deg ? "" : (item.fill || colorTexto || "#0f172a"),
+                                      fill: deg ? "" : (item.fill && item.fill !== "" ? item.fill : (colorTexto || "#0f172a")),
                                       grad1: item.grad1 || colorDegradado1 || "#FF007F",
                                       grad2: item.grad2 || colorDegradado2 || "#00F0FF",
                                     }
@@ -1524,6 +1524,45 @@ const renderImagenEnLienzo = (img: any) => {
                         }}
                         className="px-2 py-0.5 rounded bg-rose-600 hover:bg-rose-500 text-white text-[11px]"
                       >
+                        Quitar
+                      </button>
+                    </div>
+                    {Boolean(activo.usarDegradado) && (
+                      <div className="grid grid-cols-2 gap-1.5 pt-1">
+                        <label className="flex items-center gap-1 text-[11px] text-slate-300">
+                          <input
+                            type="color"
+                            value={activo.grad1 || colorDegradado1 || "#FF007F"}
+                            onChange={(e) => {
+                              const g1 = e.target.value;
+                              setCuadrosTexto((prev) =>
+                                prev.map((item: any) =>
+                                  item.id === activo.id ? { ...item, grad1: g1, usarDegradado: true, fill: "" } : item
+                                )
+                              );
+                            }}
+                            className="w-6 h-5 rounded cursor-pointer bg-transparent border-0"
+                          />
+                          <span>Grad 1</span>
+                        </label>
+                        <label className="flex items-center gap-1 text-[11px] text-slate-300">
+                          <input
+                            type="color"
+                            value={activo.grad2 || colorDegradado2 || "#00F0FF"}
+                            onChange={(e) => {
+                              const g2 = e.target.value;
+                              setCuadrosTexto((prev) =>
+                                prev.map((item: any) =>
+                                  item.id === activo.id ? { ...item, grad2: g2, usarDegradado: true, fill: "" } : item
+                                )
+                              );
+                            }}
+                            className="w-6 h-5 rounded cursor-pointer bg-transparent border-0"
+                          />
+                          <span>Grad 2</span>
+                        </label>
+                      </div>
+                    )}
                     <div className="flex items-center gap-2 pt-1">
                       <span className="text-[11px] text-slate-300">Fuente:</span>
                       <select
@@ -1535,7 +1574,7 @@ const renderImagenEnLienzo = (img: any) => {
                               item.id === activo.id
                                 ? {
                                     ...item,
-                                    texto: item.texto && item.texto.length > 0 ? item.texto : (activo.texto || "Texto"),
+                                    texto: item.texto ?? activo.texto ?? "",
                                     fontFamily: fnt,
                                     usarEstiloPropio: true,
                                   }
@@ -1583,8 +1622,43 @@ const renderImagenEnLienzo = (img: any) => {
                         <option value="Comic Sans MS">Comic Sans MS</option>
                       </select>
                     </div>
-                        Quitar
-                      </button>
+                    <div className="flex items-center gap-1 pt-1">
+                      <input
+                        type="text"
+                        placeholder="Fuente web (Ej. Poppins, Pacifico) + Enter"
+                        defaultValue=""
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            const nombre = (e.currentTarget.value || "").trim();
+                            if (!nombre) return;
+                            const linkId = "gf-" + nombre.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+                            if (!document.getElementById(linkId)) {
+                              const link = document.createElement("link");
+                              link.id = linkId;
+                              link.rel = "stylesheet";
+                              link.href = "https://fonts.googleapis.com/css2?family=" + encodeURIComponent(nombre) + "&display=swap";
+                              document.head.appendChild(link);
+                            }
+                            setCuadrosTexto((prev) =>
+                              prev.map((item: any) =>
+                                item.id === activo.id
+                                  ? {
+                                      ...item,
+                                      texto: item.texto ?? activo.texto ?? "",
+                                      fontFamily: nombre,
+                                      usarEstiloPropio: true,
+                                    }
+                                  : item
+                              )
+                            );
+                            requestAnimationFrame(() => {
+                              stageRef.current?.batchDraw();
+                            });
+                          }
+                        }}
+                        className="flex-1 px-1.5 py-0.5 rounded bg-slate-900 text-white text-[11px] border border-slate-600"
+                      />
                     </div>
                   </div>
                 );
