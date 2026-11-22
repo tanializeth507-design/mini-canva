@@ -373,6 +373,31 @@ export default function Editor() {
 
   const [formas, setFormas] = useState<any[]>([]);
   const [cuadrosTexto, setCuadrosTexto] = useState<any[]>([]);
+  const [borradorCuadroTexto, setBorradorCuadroTexto] = useState<string>("");
+  const anadirTextoAlLienzo = (textoManual?: string) => {
+    const contenido = (textoManual ?? borradorCuadroTexto).trim();
+    const textoFinal = contenido.length > 0 ? contenido : "Nuevo texto en lienzo";
+    const nuevoId = 1000 + Math.floor(Math.random() * 900000);
+    const nuevoCuadro = {
+      id: nuevoId,
+      texto: textoFinal,
+      x: 110,
+      y: 160 + (cuadrosTexto.length * 36),
+      width: 300,
+      fontSize: 28,
+      fill: "#0f172a",
+      fontFamily: fuenteTexto || "Arial",
+      scaleX: 1,
+      scaleY: 1,
+    };
+    setCuadrosTexto((prev) => [...prev, nuevoCuadro]);
+    setCapas((prev) => [...prev, { id: nuevoId, tipo: "texto" }]);
+    setSeleccionadoId(nuevoId);
+    setBorradorCuadroTexto("");
+    requestAnimationFrame(() => {
+      stageRef.current?.batchDraw();
+    });
+  };
   const agregarCuadroTexto = () => {
     const nuevoId = 1000 + Math.floor(Math.random() * 900000);
     const nuevoCuadro = {
@@ -1404,6 +1429,22 @@ const renderImagenEnLienzo = (img: any) => {
               >
                 + Agregar cuadro de texto
               </button>
+              <div className="p-2 rounded bg-slate-800/90 border border-pink-500/40 space-y-1.5">
+                <textarea
+                  rows={3}
+                  value={borradorCuadroTexto}
+                  onChange={(e) => setBorradorCuadroTexto(e.target.value)}
+                  placeholder="Escribe aquí lo que quieres poner en el lienzo..."
+                  className="w-full p-1.5 rounded bg-slate-900 text-white text-xs border border-slate-600"
+                />
+                <button
+                  type="button"
+                  onClick={() => anadirTextoAlLienzo()}
+                  className="w-full py-1.5 px-2.5 rounded bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold"
+                >
+                  Añadir texto al lienzo
+                </button>
+              </div>
               {seleccionadoId !== null && seleccionadoId !== 999 && cuadrosTexto.some((ct: any) => ct.id === seleccionadoId) && (() => {
                 const activo = cuadrosTexto.find((ct: any) => ct.id === seleccionadoId);
                 if (!activo) return null;
@@ -1815,6 +1856,7 @@ const renderImagenEnLienzo = (img: any) => {
     </div>
   );
 }
+
 
 
 
