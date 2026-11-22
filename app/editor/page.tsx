@@ -1069,20 +1069,25 @@ const renderFormaEnLienzo = (forma: any) => {
         const nx = Math.round(node.x());
         const ny = Math.round(node.y());
 
-        if (Math.abs(sx - sy) > 0.08) {
-          const clampedSx = Math.max(0.25, Math.min(5, Number(sx.toFixed(2))));
-          const clampedSy = Math.max(0.25, Math.min(5, Number(sy.toFixed(2))));
-          node.scaleX(clampedSx);
-          node.scaleY(clampedSy);
+        if (Math.abs(sy - 1) > 0.04 && Math.abs(sx - 1) <= 0.04) {
+          const sySuave = Math.max(0.4, Math.min(2.0, sy));
+          const nuevoTamVertical = Math.max(12, Math.min(220, Math.round(tam * sySuave)));
+          node.scaleX(1);
+          node.scaleY(1);
           node.x(nx);
           node.y(ny);
           setTextoPos({ x: nx, y: ny });
-          const tamAjustado = Math.max(10, Math.min(350, Math.round(tam * clampedSy)));
-          setTamanoTexto(tamAjustado);
+          setTamanoTexto(nuevoTamVertical);
+        } else if (Math.abs(sx - 1) > 0.04 && Math.abs(sy - 1) <= 0.04) {
+          const sxSuave = Number(Math.max(0.4, Math.min(2.2, sx)).toFixed(2));
+          node.scaleX(sxSuave);
           node.scaleY(1);
+          node.x(nx);
+          node.y(ny);
+          setTextoPos({ x: nx, y: ny });
         } else {
-          const escala = Math.max(0.2, Math.min(6, sy || sx || 1));
-          const nuevoTam = Math.max(10, Math.min(350, Math.round(tam * escala)));
+          const escala = Math.max(0.25, Math.min(3.0, sy || sx || 1));
+          const nuevoTam = Math.max(12, Math.min(220, Math.round(tam * escala)));
           node.scaleX(1);
           node.scaleY(1);
           node.x(nx);
@@ -1733,6 +1738,7 @@ const renderImagenEnLienzo = (img: any) => {
     </div>
   );
 }
+
 
 
 
