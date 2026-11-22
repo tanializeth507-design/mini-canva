@@ -1946,6 +1946,7 @@ const renderImagenEnLienzo = (img: any) => {
                 >
                   {subiendoFuente ? "Cargando fuente..." : "Seleccionar archivo de fuente (.ttf / .otf)"}
                 </button>
+                <button type="button" disabled={subiendoFuente} onClick={() => fontInputRef.current?.click()} className="w-full py-1.5 px-2.5 rounded-lg text-xs font-semibold bg-fuchsia-700 hover:bg-fuchsia-600 disabled:opacity-50 text-white cursor-pointer">Mis documentos (.ttf / .otf)</button>
                 <input
                   ref={fontInputRef}
                   type="file"
