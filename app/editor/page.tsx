@@ -990,17 +990,48 @@ const renderFormaEnLienzo = (forma: any) => {
 
   const renderTextoEnLienzo = () => {
   if (!texto) return null;
+  const xPos = textoPos?.x ?? 100;
+  const yPos = textoPos?.y ?? 300;
+  const tam = Number(tamanoTexto) || 40;
+  const fuente = fuenteTexto || "Arial";
+  const c1 = colorDegradado1 || "#FF007F";
+  const c2 = colorDegradado2 || "#00F0FF";
+
   return (
     <Text
-      id="elem-texto"
+      id="elem-999"
       text={texto}
-      x={textoPos?.x ?? 100}
-      y={textoPos?.y ?? 300}
+      x={xPos}
+      y={yPos}
+      fontSize={tam}
+      fontFamily={fuente}
+      fill={usarDegradado ? undefined : (colorTexto || "#0f172a")}
+      fillLinearGradientStartPoint={usarDegradado ? { x: 0, y: 0 } : undefined}
+      fillLinearGradientEndPoint={usarDegradado ? { x: Math.max(120, texto.length * tam * 0.55), y: tam } : undefined}
+      fillLinearGradientColorStops={usarDegradado ? [0, c1, 1, c2] : undefined}
+      stroke={grosorContorno > 0 ? (colorContorno || "#ffffff") : undefined}
+      strokeWidth={grosorContorno > 0 ? Number(grosorContorno) : 0}
+      shadowColor={sombraColor || "#000000"}
+      shadowBlur={Number(sombraBlur) || 0}
+      shadowOpacity={Number(sombraOpacidad ?? 0.5)}
+      shadowOffsetX={4}
+      shadowOffsetY={4}
       draggable={true}
       onClick={() => setSeleccionadoId(999)}
       onTap={() => setSeleccionadoId(999)}
       onDragEnd={(e: any) => {
         setTextoPos({ x: e.target.x(), y: e.target.y() });
+      }}
+      onTransformEnd={(e: any) => {
+        const node = e.target;
+        const sx = Math.abs(node.scaleX() || 1);
+        const sy = Math.abs(node.scaleY() || 1);
+        const escala = Math.max(sx, sy);
+        const nuevoTam = Math.max(10, Math.min(300, Math.round(tam * escala)));
+        node.scaleX(1);
+        node.scaleY(1);
+        setTextoPos({ x: node.x(), y: node.y() });
+        setTamanoTexto(nuevoTam);
       }}
     />
   );
@@ -1639,6 +1670,7 @@ const renderImagenEnLienzo = (img: any) => {
     </div>
   );
 }
+
 
 
 
