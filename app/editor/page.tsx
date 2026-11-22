@@ -1522,10 +1522,10 @@ const renderImagenEnLienzo = (img: any) => {
                     <div className="flex items-center gap-2 pt-1">
                       <span className="text-[11px] text-slate-300">Fuente:</span>
                       <select
-                        value={activo.fontFamily || fuenteTexto || "Arial"}
+                        value={activo.fontFamily || "Arial"}
                         onChange={(e) => {
                           const fnt = e.target.value;
-                          setFuenteTexto(fnt);
+
                           setCuadrosTexto((prev) =>
                             prev.map((item: any) =>
                               item.id === activo.id ? { ...item, fontFamily: fnt } : item
@@ -1877,7 +1877,11 @@ const renderImagenEnLienzo = (img: any) => {
 
                 {capas.map((capa) => {
                   if (capa.tipo === "texto") {
-                    return renderTextoEnLienzo();
+            const idxUnico999 = capas.findIndex((item: any) => item.id === 999);
+            if (idxUnico999 !== -1 && capas.indexOf(capa) !== idxUnico999) {
+              return null;
+            }
+            return renderTextoEnLienzo();
                   }
                   if (capa.tipo === "forma") {
                     const forma = formas.find((f) => f.id === capa.id);
