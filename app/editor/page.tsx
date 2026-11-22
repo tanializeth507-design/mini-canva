@@ -1070,21 +1070,25 @@ const renderTextoEnLienzo = () => {
         const ny = Math.round(node.y());
 
         if (Math.abs(sy - 1) > 0.04 && Math.abs(sx - 1) <= 0.04) {
-          const sySeguro = sy > 1 ? Math.min(1.05, 1 + (sy - 1) * 0.1) : Math.max(0.7, sy);
-          const candidatoVert = sy > 1
-            ? Math.min(68, Math.max(tam, Math.round(tam * sySeguro)))
-            : Math.max(14, Math.min(68, Math.round(tam * sySeguro)));
+          const tamVertical = sy > 1
+            ? Math.min(48, Math.max(14, Math.min(tam, 48)))
+            : Math.max(14, Math.min(48, Math.round(tam * Math.max(0.65, sy))));
           node.scaleX(1);
           node.scaleY(1);
-          node.fontSize(candidatoVert);
+          node.fontSize(tamVertical);
           node.x(nx);
           node.y(ny);
           setTextoPos({ x: nx, y: ny });
-          setTamanoTexto(candidatoVert);
-          trRef.current?.forceUpdate();
-          stageRef.current?.batchDraw();
+          setTamanoTexto(tamVertical);
+          requestAnimationFrame(() => {
+            trRef.current?.nodes([node]);
+            trRef.current?.forceUpdate();
+            stageRef.current?.batchDraw();
+          });
           return;
-        } else if (Math.abs(sx - 1) > 0.04 && Math.abs(sy - 1) <= 0.04) {
+        }
+
+        if (Math.abs(sx - 1) > 0.04 && Math.abs(sy - 1) <= 0.04) {
           const sxSuave = Number(Math.max(0.4, Math.min(2.2, sx)).toFixed(2));
           node.scaleX(sxSuave);
           node.scaleY(1);
@@ -1103,6 +1107,7 @@ const renderTextoEnLienzo = () => {
         }
 
         requestAnimationFrame(() => {
+          trRef.current?.nodes([node]);
           trRef.current?.forceUpdate();
           stageRef.current?.batchDraw();
         });
