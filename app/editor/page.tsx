@@ -852,256 +852,143 @@ export default function Editor() {
   };
 
   const manejarTransformForma = (e: any, forma: any) => {
-    const node = e.target;
-    const scaleX = node.scaleX();
-    const scaleY = node.scaleY();
-    const factor = Math.max(0.25, Math.min(3.5, Number(((Math.abs(scaleX) + Math.abs(scaleY)) / 2).toFixed(2))));
+  const node = e.target;
+  const rawScaleX = node.scaleX() || 1;
+  const rawScaleY = node.scaleY() || 1;
+  const nx = node.x();
+  const ny = node.y();
 
+  if (forma.tipo === "circulo") {
+    const factor = Math.max(0.25, Math.min(4, Number(((Math.abs(rawScaleX) + Math.abs(rawScaleY)) / 2).toFixed(2))));
     node.scaleX(1);
     node.scaleY(1);
-
-    const nx = node.x();
-    const ny = node.y();
-
     setFormas((prev) =>
       prev.map((f) => {
         if (f.id !== forma.id) return f;
-        const escalada = aplicarFactorAForma(f, factor);
         return {
-          ...escalada,
+          ...f,
           x: nx,
           y: ny,
+          radius: Math.max(10, Math.min(240, Number(((f.radius || 38) * factor).toFixed(2)))),
+          escalaNivel: Math.max(0.25, Math.min(4, Number(((f.escalaNivel || 1) * factor).toFixed(2)))),
         };
       })
     );
-  };
+    return;
+  }
 
-  const renderFormaEnLienzo = (forma: any) => {
-    const commonProps = {
-      id: `elem-${forma.id}`,
-      x: forma.x,
-      y: forma.y,
-      draggable: true,
-      onClick: () => setSeleccionadoId(forma.id),
-      onTap: () => setSeleccionadoId(forma.id),
-      onDragEnd: (e: any) => {
-        const nx = e.target.x();
-        const ny = e.target.y();
-        setFormas((prev) => prev.map((f) => (f.id === forma.id ? { ...f, x: nx, y: ny } : f)));
-      },
-      onTransformEnd: (e: any) => manejarTransformForma(e, forma),
-    };
-
-    if (forma.tipo === "circulo") {
-      return (
-        <Circle
-          {...commonProps}
-          radius={forma.radius || 38}
-          fill={forma.fill}
-          stroke={forma.stroke}
-          strokeWidth={forma.strokeWidth || 2}
-        />
-      );
-    }
-
-    if (forma.tipo === "cuadrado") {
-      return (
-        <Rect
-          {...commonProps}
-          width={forma.width || 80}
-          height={forma.height || 80}
-          fill={forma.fill}
-          stroke={forma.stroke}
-          strokeWidth={forma.strokeWidth || 2}
-          cornerRadius={6}
-        />
-      );
-    }
-
-    if (forma.tipo === "triangulo") {
-      return (
-        <RegularPolygon
-          {...commonProps}
-          sides={3}
-          radius={forma.radius || 40}
-          fill={forma.fill}
-          stroke={forma.stroke}
-          strokeWidth={forma.strokeWidth || 2}
-        />
-      );
-    }
-
-    if (forma.tipo === "rombo") {
-      return (
-        <RegularPolygon
-          {...commonProps}
-          sides={4}
-          radius={forma.radius || 40}
-          fill={forma.fill}
-          stroke={forma.stroke}
-          strokeWidth={forma.strokeWidth || 2}
-        />
-      );
-    }
-
-    if (forma.tipo === "estrella") {
-      return (
-        <Star
-          {...commonProps}
-          numPoints={5}
-          innerRadius={22}
-          outerRadius={44}
-          fill={forma.fill}
-          stroke={forma.stroke}
-          strokeWidth={forma.strokeWidth || 2}
-        />
-      );
-    }
-
-    if (forma.tipo === "corazon") {
-      return (
-        <Path
-          key={forma.id}
-          {...commonProps}
-          data={escalarPathSvg(getHeartPath(), 0.75 * (forma.escalaNivel || 1))}
-          fill={forma.fill}
-          stroke={forma.stroke}
-          strokeWidth={forma.strokeWidth || 2}
-        />
-      );
-    }
-
-    if (forma.tipo === "linea" && Array.isArray(forma.points)) {
-      return (
-        <Line
-          {...commonProps}
-          points={forma.points}
-          stroke={forma.stroke || "#0f172a"}
-          strokeWidth={forma.strokeWidth || 4}
-          lineCap="round"
-          lineJoin="round"
-        />
-      );
-    }
-
-    if ((forma.tipo === "flecha" || forma.tipo === "flecha_doble") && Array.isArray(forma.points)) {
-      return (
-        <Arrow
-          {...commonProps}
-          points={forma.points}
-          fill={forma.stroke || "#0f172a"}
-          stroke={forma.stroke || "#0f172a"}
-          strokeWidth={forma.strokeWidth || 4}
-          pointerLength={12}
-          pointerWidth={12}
-          pointerAtBeginning={forma.tipo === "flecha_doble"}
-          pointerAtEnding={true}
-        />
-      );
-    }
-
-    if (forma.path) {
-      const esTrazo = forma.estilo === "svg_stroke";
-      return (
-        <Path
-          key={forma.id}
-          {...commonProps}
-          data={forma.path}
-          fill={esTrazo ? "transparent" : forma.fill || "#0f172a"}
-          stroke={forma.stroke || "#0f172a"}
-          strokeWidth={forma.strokeWidth || (esTrazo ? 3.5 : 2)}
-          lineCap="round"
-          lineJoin="round"
-        />
-      );
-    }
-
-    return null;
-  };
-
-  const renderImagenEnLienzo = (imgObj: any) => {
-    if (!imgObj?.image) return null;
-    return (
-      <KonvaImage
-        key={imgObj.id}
-        id={`elem-${imgObj.id}`}
-        image={imgObj.image}
-        x={imgObj.x}
-        y={imgObj.y}
-        width={imgObj.width}
-        height={imgObj.height}
-        opacity={imgObj.opacity ?? 1}
-        draggable
-        onClick={() => setSeleccionadoId(imgObj.id)}
-        onTap={() => setSeleccionadoId(imgObj.id)}
-        onDragEnd={(e: any) => {
-          const nx = e.target.x();
-          const ny = e.target.y();
-          setImagenes((prev) => prev.map((item) => (item.id === imgObj.id ? { ...item, x: nx, y: ny } : item)));
-        }}
-        onTransformEnd={(e: any) => {
-          const node = e.target;
-          const scaleX = node.scaleX();
-          const scaleY = node.scaleY();
-          node.scaleX(1);
-          node.scaleY(1);
-          const nx = node.x();
-          const ny = node.y();
-          const nw = Math.max(20, Math.round(node.width() * scaleX));
-          const nh = Math.max(20, Math.round(node.height() * scaleY));
-          setImagenes((prev) =>
-            prev.map((item) =>
-              item.id === imgObj.id ? { ...item, x: nx, y: ny, width: nw, height: nh } : item
-            )
-          );
-        }}
-      />
+  if (forma.tipo === "cuadrado") {
+    const baseW = forma.width || 80;
+    const baseH = forma.height || 80;
+    node.scaleX(1);
+    node.scaleY(1);
+    setFormas((prev) =>
+      prev.map((f) => {
+        if (f.id !== forma.id) return f;
+        return {
+          ...f,
+          x: nx,
+          y: ny,
+          width: Math.max(15, Math.min(420, Number((baseW * Math.abs(rawScaleX)).toFixed(2)))),
+          height: Math.max(15, Math.min(420, Number((baseH * Math.abs(rawScaleY)).toFixed(2)))),
+        };
+      })
     );
-  };
+    return;
+  }
 
-  const renderTextoEnLienzo = () => {
-    if (!texto && seleccionadoId !== 999) return null;
-    const anchoEstimado = Math.max(120, (texto || " ").length * tamanoTexto * 0.55);
-
-    return (
-      <Text
-        key={999}
-        id="elem-999"
-        text={texto || " "}
-        x={textoPos.x}
-        y={textoPos.y}
-        fontSize={tamanoTexto}
-        fontFamily={fuenteTexto}
-        fill={usarDegradado ? undefined : colorTexto}
-        fillLinearGradientStartPoint={usarDegradado ? { x: 0, y: 0 } : undefined}
-        fillLinearGradientEndPoint={usarDegradado ? { x: anchoEstimado, y: tamanoTexto } : undefined}
-        fillLinearGradientColorStops={
-          usarDegradado ? [0, colorDegradado1, 1, colorDegradado2] : undefined
-        }
-        stroke={grosorContorno > 0 ? colorContorno : undefined}
-        strokeWidth={grosorContorno > 0 ? grosorContorno : 0}
-        shadowColor={sombraColor}
-        shadowBlur={sombraBlur}
-        shadowOpacity={sombraOpacidad}
-        shadowOffsetX={3}
-        shadowOffsetY={3}
-        draggable
-        onClick={() => setSeleccionadoId(999)}
-        onTap={() => setSeleccionadoId(999)}
-        onDragEnd={(e: any) => {
-          setTextoPos({ x: e.target.x(), y: e.target.y() });
-        }}
-        onTransformEnd={(e: any) => {
-          const node = e.target;
-          const scaleY = node.scaleY();
-          node.scaleX(1);
-          node.scaleY(1);
-          setTextoPos({ x: node.x(), y: node.y() });
-          setTamanoTexto((prev) => Math.max(12, Math.min(180, Math.round(prev * Math.abs(scaleY || 1)))));
-        }}
-      />
+  if (forma.tipo === "triangulo" || forma.tipo === "rombo") {
+    const factor = Math.max(0.25, Math.min(4, Number(((Math.abs(rawScaleX) + Math.abs(rawScaleY)) / 2).toFixed(2))));
+    node.scaleX(1);
+    node.scaleY(1);
+    setFormas((prev) =>
+      prev.map((f) => {
+        if (f.id !== forma.id) return f;
+        return {
+          ...f,
+          x: nx,
+          y: ny,
+          radius: Math.max(10, Math.min(240, Number(((f.radius || 40) * factor).toFixed(2)))),
+          escalaNivel: Math.max(0.25, Math.min(4, Number(((f.escalaNivel || 1) * factor).toFixed(2)))),
+        };
+      })
     );
+    return;
+  }
+
+  const nextScaleX = Math.max(0.25, Math.min(4, Number(((forma.scaleX || 1) * rawScaleX).toFixed(2))));
+  const nextScaleY = Math.max(0.25, Math.min(4, Number(((forma.scaleY || 1) * rawScaleY).toFixed(2))));
+
+  setFormas((prev) =>
+    prev.map((f) => {
+      if (f.id !== forma.id) return f;
+      return {
+        ...f,
+        x: nx,
+        y: ny,
+        scaleX: nextScaleX,
+        scaleY: nextScaleY,
+        escalaNivel: Number(((nextScaleX + nextScaleY) / 2).toFixed(2)),
+      };
+    })
+  );
+};
+
+const renderFormaEnLienzo = (forma: any) => {
+  const esSvgEscalado =
+    forma.tipo === "corazon" ||
+    forma.tipo === "linea" ||
+    forma.tipo === "flecha" ||
+    forma.tipo === "flecha_doble" ||
+    Boolean(forma.path);
+
+  const commonProps = {
+    id: `elem-${forma.id}`,
+    x: forma.x,
+    y: forma.y,
+    ...(esSvgEscalado ? { scaleX: forma.scaleX || 1, scaleY: forma.scaleY || 1 } : {}),
+    draggable: true,
+    onClick: () => setSeleccionadoId(forma.id),
+    onTap: () => setSeleccionadoId(forma.id),
+    onDragEnd: (e: any) => {
+      const nx = e.target.x();
+      const ny = e.target.y();
+      setFormas((prev) => prev.map((f) => (f.id === forma.id ? { ...f, x: nx, y: ny } : f)));
+    },
+    onTransformEnd: (e: any) => manejarTransformForma(e, forma),
   };
+
+  if (forma.tipo === "circulo") {
+    return <Circle {...commonProps} radius={forma.radius || 38} fill={forma.fill} stroke={forma.stroke} strokeWidth={forma.strokeWidth || 2} />;
+  }
+  if (forma.tipo === "cuadrado") {
+    return <Rect {...commonProps} width={forma.width || 80} height={forma.height || 80} fill={forma.fill} stroke={forma.stroke} strokeWidth={forma.strokeWidth || 2} cornerRadius={6} />;
+  }
+  if (forma.tipo === "triangulo") {
+    return <RegularPolygon {...commonProps} sides={3} radius={forma.radius || 40} fill={forma.fill} stroke={forma.stroke} strokeWidth={forma.strokeWidth || 2} />;
+  }
+  if (forma.tipo === "rombo") {
+    return <RegularPolygon {...commonProps} sides={4} radius={forma.radius || 40} fill={forma.fill} stroke={forma.stroke} strokeWidth={forma.strokeWidth || 2} />;
+  }
+  if (forma.tipo === "estrella") {
+    return <Star {...commonProps} numPoints={5} innerRadius={22} outerRadius={44} fill={forma.fill} stroke={forma.stroke} strokeWidth={forma.strokeWidth || 2} />;
+  }
+  if (forma.tipo === "corazon") {
+    return <Path key={forma.id} {...commonProps} data={escalarPathSvg(getHeartPath(), 0.75)} fill={forma.fill} stroke={forma.stroke} strokeWidth={forma.strokeWidth || 2} />;
+  }
+  if (forma.tipo === "linea" && Array.isArray(forma.points)) {
+    return <Line {...commonProps} points={forma.points} stroke={forma.stroke || "#0f172a"} strokeWidth={forma.strokeWidth || 4} lineCap="round" lineJoin="round" />;
+  }
+  if ((forma.tipo === "flecha" || forma.tipo === "flecha_doble") && Array.isArray(forma.points)) {
+    return <Arrow {...commonProps} points={forma.points} fill={forma.stroke || "#0f172a"} stroke={forma.stroke || "#0f172a"} strokeWidth={forma.strokeWidth || 4} pointerLength={12} pointerWidth={12} pointerAtBeginning={forma.tipo === "flecha_doble"} pointerAtEnding={true} />;
+  }
+  if (forma.path) {
+    const esTrazo = forma.estilo === "svg_stroke";
+    return <Path key={forma.id} {...commonProps} data={forma.path} fill={esTrazo ? "transparent" : forma.fill || "#0f172a"} stroke={forma.stroke || "#0f172a"} strokeWidth={forma.strokeWidth || (esTrazo ? 3.5 : 2)} lineCap="round" lineJoin="round" />;
+  }
+  return null;
+};
+
 
   const formaSeleccionada = formas.find((f) => f.id === seleccionadoId);
   const imagenSeleccionada = imagenes.find((i) => i.id === seleccionadoId);
@@ -1685,3 +1572,4 @@ export default function Editor() {
     </div>
   );
 }
+
