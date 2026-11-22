@@ -988,6 +988,74 @@ const renderFormaEnLienzo = (forma: any) => {
 };
 
 
+  const renderTextoEnLienzo = () => {
+  if (!texto) return null;
+  return (
+    <Text
+      id="elem-texto"
+      text={texto}
+      x={textoPos?.x ?? 100}
+      y={textoPos?.y ?? 300}
+      draggable={true}
+      onClick={() => setSeleccionadoId(999)}
+      onTap={() => setSeleccionadoId(999)}
+      onDragEnd={(e: any) => {
+        setTextoPos({ x: e.target.x(), y: e.target.y() });
+      }}
+    />
+  );
+};
+
+const renderImagenEnLienzo = (img: any) => {
+  if (!img) return null;
+  const elementoImg = img.elemento || img.image || img.img;
+  return (
+    <KonvaImage
+      key={img.id}
+      id={`elem-${img.id}`}
+      image={elementoImg}
+      x={img.x ?? 80}
+      y={img.y ?? 80}
+      width={img.width ?? 180}
+      height={img.height ?? 180}
+      scaleX={img.scaleX ?? 1}
+      scaleY={img.scaleY ?? 1}
+      draggable={true}
+      onClick={() => setSeleccionadoId(img.id)}
+      onTap={() => setSeleccionadoId(img.id)}
+      onDragEnd={(e: any) => {
+        const nx = e.target.x();
+        const ny = e.target.y();
+        setImagenes((prev: any[]) =>
+          prev.map((item) => (item.id === img.id ? { ...item, x: nx, y: ny } : item))
+        );
+      }}
+      onTransformEnd={(e: any) => {
+        const node = e.target;
+        const sx = node.scaleX() || 1;
+        const sy = node.scaleY() || 1;
+        const nx = node.x();
+        const ny = node.y();
+        node.scaleX(1);
+        node.scaleY(1);
+        setImagenes((prev: any[]) =>
+          prev.map((item) => {
+            if (item.id !== img.id) return item;
+            return {
+              ...item,
+              x: nx,
+              y: ny,
+              width: Math.max(12, Math.min(1200, Number(((item.width || 180) * Math.abs(sx)).toFixed(2)))),
+              height: Math.max(12, Math.min(1200, Number(((item.height || 180) * Math.abs(sy)).toFixed(2)))),
+            };
+          })
+        );
+      }}
+    />
+  );
+};
+
+
   const formaSeleccionada = formas.find((f) => f.id === seleccionadoId);
   const imagenSeleccionada = imagenes.find((i) => i.id === seleccionadoId);
   const formasDeCategoria = FORMAS_CATALOGO[categoriaFormas] || [];
@@ -1571,6 +1639,8 @@ const renderFormaEnLienzo = (forma: any) => {
     </div>
   );
 }
+
+
 
 
 
