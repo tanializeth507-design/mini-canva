@@ -475,7 +475,7 @@ export default function Editor() {
       trRef.current.nodes([]);
       trRef.current.getLayer()?.batchDraw();
     }
-  }, [seleccionadoId, capas.length, formas.length, imagenes.length, textoPos.x, textoPos.y, tamanoTexto]);
+  }, [seleccionadoId, capas, formas, imagenes, textoPos.x, textoPos.y, tamanoTexto, texto]);
 
   const registrarCapa = (id: number, tipo: "texto" | "forma" | "imagen") => {
     setCapas((prev) => {
@@ -549,6 +549,7 @@ export default function Editor() {
       }, 1500);
     };
     reader.readAsDataURL(file);
+    e.target.value = "";
   };
 
   const cargarImagenDesdeURL = () => {
@@ -611,9 +612,16 @@ export default function Editor() {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    if (/\.zip$/i.test(file.name)) {
+      alert("El archivo es un .zip. Extrae primero la carpeta y selecciona el archivo .ttf o .otf.");
+      e.target.value = "";
+      return;
+    }
+
     setSubiendoFuente(true);
     const idFuente = `custom-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
-    const nombreLimpio = file.name.replace(/\.(ttf|otf)$/i, "");
+    const nombreArchivo = file.name.replace(/\.(ttf|otf|woff2|woff)$/i, "");
+    const nombreLimpio = nuevaFuenteGoogle.trim() || nombreArchivo;
 
     const reader = new FileReader();
     reader.onload = async (event) => {
@@ -628,63 +636,22 @@ export default function Editor() {
 
         setFuentesPersonalizadas((prev) => [...prev, nuevaFuente]);
         setFuenteTexto(idFuente);
+        setNuevaFuenteGoogle("");
 
         const fuentesGuardadas = JSON.parse(localStorage.getItem("misFuentesLocales") || "[]");
         fuentesGuardadas.push(nuevaFuente);
         localStorage.setItem("misFuentesLocales", JSON.stringify(fuentesGuardadas));
 
-        alert("¡Fuente subida y guardada en tu navegador! 🎉");
+        alert(`¡Fuente "${nombreLimpio}" lista y guardada en tu navegador! 🎉`);
       } catch (error) {
-        alert("Error al cargar la fuente en el navegador.");
+        alert("No se pudo cargar la fuente. Asegúrate de elegir un archivo .ttf, .otf, .woff o .woff2 válido.");
         console.error(error);
       } finally {
         setSubiendoFuente(false);
+        e.target.value = "";
       }
     };
     reader.readAsDataURL(file);
-  };
-
-  const agregarFuenteGoogle = () => {
-    const nombreLimpio = nuevaFuenteGoogle.trim();
-    if (!nombreLimpio) return;
-
-    const familiaFormateada = nombreLimpio.replace(/\s+/g, "+");
-    const link = document.createElement("link");
-    link.href = `https://fonts.googleapis.com/css2?family=${familiaFormateada}&display=swap`;
-    link.rel = "stylesheet";
-    document.head.appendChild(link);
-
-    const nueva = { id: nombreLimpio, nombre: nombreLimpio };
-    setFuentesPersonalizadas((prev) => {
-      if (prev.some((f) => f.id.toLowerCase() === nombreLimpio.toLowerCase())) return prev;
-      return [...prev, nueva];
-    });
-    setFuenteTexto(nombreLimpio);
-    setNuevaFuenteGoogle("");
-  };
-
-  const descargarGuiaFuentes = () => {
-    const contenido = [
-      "FUENTES DISPONIBLES EN MINI CANVA",
-      "---------------------------------",
-      "Fuentes incluidas:",
-      ...FUENTES_BASE.map((f) => `- ${f}`),
-      "",
-      "Para agregar más fuentes desde tu PC:",
-      "1. Descarga un archivo .ttf o .otf (por ejemplo desde Google Fonts o DaFont).",
-      "2. Haz clic en '+ Subir Fuente (.ttf / .otf)' en el editor.",
-      "3. O escribe el nombre exacto de una fuente de Google Fonts (ej. Poppins, Montserrat, Nunito) y pulsa 'Agregar'.",
-    ].join("\n");
-
-    const blob = new Blob([contenido], { type: "text/plain;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = "fuentes-mini-canva.txt";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
   };
 
   const borrarSeleccionado = () => {
@@ -771,18 +738,6 @@ export default function Editor() {
         })
       );
     }
-  };
-
-  const fijarEscalaExacta = (valorDeseado: number) => {
-    if (seleccionadoId === null) return;
-    const forma = formas.find((f) => f.id === seleccionadoId);
-    if (!forma) return;
-    const nivelActual = forma.escalaNivel || 1;
-    if (nivelActual <= 0) return;
-    const factorRelativo = valorDeseado / nivelActual;
-    setFormas((prev) =>
-      prev.map((f) => (f.id === seleccionadoId ? aplicarFactorAForma(f, factorRelativo, valorDeseado) : f))
-    );
   };
 
   const cambiarOpacidadImagen = (nuevaOpacidad: number) => {
@@ -896,6 +851,31 @@ export default function Editor() {
     }, 80);
   };
 
+  const manejarTransformForma = (e: any, forma: any) => {
+    const node = e.target;
+    const scaleX = node.scaleX();
+    const scaleY = node.scaleY();
+    const factor = Math.max(0.25, Math.min(3.5, Number(((Math.abs(scaleX) + Math.abs(scaleY)) / 2).toFixed(2))));
+
+    node.scaleX(1);
+    node.scaleY(1);
+
+    const nx = node.x();
+    const ny = node.y();
+
+    setFormas((prev) =>
+      prev.map((f) => {
+        if (f.id !== forma.id) return f;
+        const escalada = aplicarFactorAForma(f, factor);
+        return {
+          ...escalada,
+          x: nx,
+          y: ny,
+        };
+      })
+    );
+  };
+
   const renderFormaEnLienzo = (forma: any) => {
     const commonProps = {
       id: `elem-${forma.id}`,
@@ -909,6 +889,7 @@ export default function Editor() {
         const ny = e.target.y();
         setFormas((prev) => prev.map((f) => (f.id === forma.id ? { ...f, x: nx, y: ny } : f)));
       },
+      onTransformEnd: (e: any) => manejarTransformForma(e, forma),
     };
 
     if (forma.tipo === "circulo") {
@@ -981,7 +962,7 @@ export default function Editor() {
       return (
         <Path
           key={forma.id}
-        {...commonProps}
+          {...commonProps}
           data={escalarPathSvg(getHeartPath(), 0.75 * (forma.escalaNivel || 1))}
           fill={forma.fill}
           stroke={forma.stroke}
@@ -1024,7 +1005,7 @@ export default function Editor() {
       return (
         <Path
           key={forma.id}
-        {...commonProps}
+          {...commonProps}
           data={forma.path}
           fill={esTrazo ? "transparent" : forma.fill || "#0f172a"}
           stroke={forma.stroke || "#0f172a"}
@@ -1058,12 +1039,30 @@ export default function Editor() {
           const ny = e.target.y();
           setImagenes((prev) => prev.map((item) => (item.id === imgObj.id ? { ...item, x: nx, y: ny } : item)));
         }}
+        onTransformEnd={(e: any) => {
+          const node = e.target;
+          const scaleX = node.scaleX();
+          const scaleY = node.scaleY();
+          node.scaleX(1);
+          node.scaleY(1);
+          const nx = node.x();
+          const ny = node.y();
+          const nw = Math.max(20, Math.round(node.width() * scaleX));
+          const nh = Math.max(20, Math.round(node.height() * scaleY));
+          setImagenes((prev) =>
+            prev.map((item) =>
+              item.id === imgObj.id ? { ...item, x: nx, y: ny, width: nw, height: nh } : item
+            )
+          );
+        }}
       />
     );
   };
 
   const renderTextoEnLienzo = () => {
     if (!texto && seleccionadoId !== 999) return null;
+    const anchoEstimado = Math.max(120, (texto || " ").length * tamanoTexto * 0.55);
+
     return (
       <Text
         key={999}
@@ -1073,17 +1072,32 @@ export default function Editor() {
         y={textoPos.y}
         fontSize={tamanoTexto}
         fontFamily={fuenteTexto}
-        fill={colorTexto}
+        fill={usarDegradado ? undefined : colorTexto}
+        fillLinearGradientStartPoint={usarDegradado ? { x: 0, y: 0 } : undefined}
+        fillLinearGradientEndPoint={usarDegradado ? { x: anchoEstimado, y: tamanoTexto } : undefined}
+        fillLinearGradientColorStops={
+          usarDegradado ? [0, colorDegradado1, 1, colorDegradado2] : undefined
+        }
         stroke={grosorContorno > 0 ? colorContorno : undefined}
         strokeWidth={grosorContorno > 0 ? grosorContorno : 0}
         shadowColor={sombraColor}
         shadowBlur={sombraBlur}
         shadowOpacity={sombraOpacidad}
+        shadowOffsetX={3}
+        shadowOffsetY={3}
         draggable
         onClick={() => setSeleccionadoId(999)}
         onTap={() => setSeleccionadoId(999)}
         onDragEnd={(e: any) => {
           setTextoPos({ x: e.target.x(), y: e.target.y() });
+        }}
+        onTransformEnd={(e: any) => {
+          const node = e.target;
+          const scaleY = node.scaleY();
+          node.scaleX(1);
+          node.scaleY(1);
+          setTextoPos({ x: node.x(), y: node.y() });
+          setTamanoTexto((prev) => Math.max(12, Math.min(180, Math.round(prev * Math.abs(scaleY || 1)))));
         }}
       />
     );
@@ -1333,6 +1347,80 @@ export default function Editor() {
                 />
               </div>
             </div>
+
+            <div className="bg-slate-900/70 border border-slate-700/80 rounded-lg p-2.5 space-y-2">
+              <label className="flex items-center gap-2 text-xs text-slate-200 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={usarDegradado}
+                  onChange={(e) => setUsarDegradado(e.target.checked)}
+                  className="rounded"
+                />
+                <span>Degradado en letras</span>
+              </label>
+              {usarDegradado && (
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <span className="text-[11px] text-slate-400 block mb-1">Color 1</span>
+                    <input
+                      type="color"
+                      value={colorDegradado1}
+                      onChange={(e) => setColorDegradado1(e.target.value)}
+                      className="w-full h-8 bg-slate-900 border border-slate-700 rounded cursor-pointer"
+                    />
+                  </div>
+                  <div>
+                    <span className="text-[11px] text-slate-400 block mb-1">Color 2</span>
+                    <input
+                      type="color"
+                      value={colorDegradado2}
+                      onChange={(e) => setColorDegradado2(e.target.value)}
+                      className="w-full h-8 bg-slate-900 border border-slate-700 rounded cursor-pointer"
+                    />
+                  </div>
+                </div>
+              )}
+
+              <div className="pt-1 border-t border-slate-800 space-y-1.5">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-[11px] text-slate-300">Sombra en letras</span>
+                  <input
+                    type="color"
+                    value={sombraColor}
+                    onChange={(e) => setSombraColor(e.target.value)}
+                    className="h-7 w-12 bg-slate-900 border border-slate-700 rounded cursor-pointer"
+                  />
+                </div>
+                <div>
+                  <label className="text-[11px] text-slate-400 block">
+                    Desenfoque sombra ({sombraBlur}px)
+                  </label>
+                  <input
+                    type="range"
+                    min={0}
+                    max={30}
+                    value={sombraBlur}
+                    onChange={(e) => setSombraBlur(Number(e.target.value))}
+                    className="w-full"
+                  />
+                </div>
+                <div>
+                  <label className="text-[11px] text-slate-400 block">
+                    Opacidad sombra ({Math.round(sombraOpacidad * 100)}%)
+                  </label>
+                  <input
+                    type="range"
+                    min={0}
+                    max={1}
+                    step={0.05}
+                    value={sombraOpacidad}
+                    onChange={(e) => setSombraOpacidad(Number(e.target.value))}
+                    className="w-full"
+                  />
+                </div>
+              </div>
+            </div>
+
             <div>
               <label className="text-[11px] text-slate-400 block mb-1">Fuente</label>
               <select
@@ -1378,8 +1466,14 @@ export default function Editor() {
                 >
                   {subiendoFuente ? "Cargando fuente..." : "Seleccionar archivo de fuente (.ttf / .otf)"}
                 </button>
+                <input
+                  ref={fontInputRef}
+                  type="file"
+                  accept=".ttf,.otf,.woff,.woff2,.zip"
+                  onChange={subirFuente}
+                  className="hidden"
+                />
               </div>
-
             </div>
           </div>
 
@@ -1408,7 +1502,6 @@ export default function Editor() {
                     </option>
                   ))}
                 </select>
-
               </div>
             </div>
 
@@ -1567,7 +1660,16 @@ export default function Editor() {
                 <Transformer
                   ref={trRef}
                   rotateEnabled={true}
-                  enabledAnchors={["top-left", "top-right", "bottom-left", "bottom-right"]}
+                  enabledAnchors={[
+                    "top-left",
+                    "top-center",
+                    "top-right",
+                    "middle-left",
+                    "middle-right",
+                    "bottom-left",
+                    "bottom-center",
+                    "bottom-right",
+                  ]}
                   boundBoxFunc={(oldBox, newBox) => {
                     if (Math.abs(newBox.width) < 15 || Math.abs(newBox.height) < 15) {
                       return oldBox;
@@ -1583,7 +1685,3 @@ export default function Editor() {
     </div>
   );
 }
-
-
-
-
