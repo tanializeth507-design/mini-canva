@@ -381,9 +381,9 @@ export default function Editor() {
     const nuevoCuadro = {
       id: nuevoId,
       texto: textoFinal,
-      x: 110,
-      y: 160 + (cuadrosTexto.length * 36),
-      width: 300,
+      x: 24,
+      y: Math.min(540, 120 + (cuadrosTexto.length * 36)),
+      width: 280,
       fontSize: 28,
       fill: "#0f172a",
       fontFamily: fuenteTexto || "Arial",
@@ -403,9 +403,9 @@ export default function Editor() {
     const nuevoCuadro = {
       id: nuevoId,
       texto: "Escribe aquí tu texto o carta...",
-      x: 110,
-      y: 140,
-      width: 280,
+      x: 24,
+      y: 120,
+      width: 260,
       fontSize: 22,
       fill: "#0f172a",
       fontFamily: fuenteTexto || "Arial",
@@ -2244,8 +2244,11 @@ const renderImagenEnLienzo = (img: any) => {
               onClick={(e: any) => { setSeleccionadoId(cuadro.id); trRef.current?.nodes([e.target]); trRef.current?.forceUpdate(); }}
               onTap={(e: any) => { setSeleccionadoId(cuadro.id); trRef.current?.nodes([e.target]); trRef.current?.forceUpdate(); }}
               onDragEnd={(e: any) => {
-                const nx = Math.round(e.target.x());
-                const ny = Math.round(e.target.y());
+                const wAct = Math.min(460, Math.round((e.target.width() || cuadro.width || 280) * Math.abs(e.target.scaleX() || 1)));
+                const nx = Math.max(8, Math.min(500 - wAct - 8, Math.round(e.target.x())));
+                const ny = Math.max(8, Math.min(650 - 36, Math.round(e.target.y())));
+                e.target.x(nx);
+                e.target.y(ny);
                 setCuadrosTexto((prev) =>
                   prev.map((item: any) =>
                     item.id === cuadro.id ? { ...item, x: nx, y: ny } : item
@@ -2259,14 +2262,16 @@ const renderImagenEnLienzo = (img: any) => {
                 const nx = Math.round(node.x());
                 const ny = Math.round(node.y());
                 const rot = Math.round(node.rotation() || 0);
-                const nuevoAncho = Math.max(60, Math.round((node.width() || cuadro.width || 300) * sx));
-                const nuevoTam = Math.max(12, Math.min(240, Math.round((cuadro.fontSize || 28) * sy)));
+                const nuevoAncho = Math.max(60, Math.min(484, Math.round((node.width() || cuadro.width || 280) * sx)));
+                const nuevoTam = Math.max(12, Math.min(180, Math.round((cuadro.fontSize || 24) * sy)));
+                const clampedX = Math.max(8, Math.min(500 - nuevoAncho - 8, nx));
+                const clampedY = Math.max(8, Math.min(650 - 36, ny));
                 node.scaleX(1);
                 node.scaleY(1);
                 node.width(nuevoAncho);
                 node.rotation(rot);
-                node.x(nx);
-                node.y(ny);
+                node.x(clampedX);
+                node.y(clampedY);
                 setCuadrosTexto((prev) =>
                   prev.map((item: any) =>
                     item.id === cuadro.id
