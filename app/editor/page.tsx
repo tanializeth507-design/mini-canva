@@ -2208,7 +2208,7 @@ const renderImagenEnLienzo = (img: any) => {
           {cuadrosTexto.map((cuadro: any) => (
             <Text
               key={cuadro.id}
-              id={`elem-`}
+              id={`elem-${cuadro.id}`}
               text={cuadro.texto}
               x={cuadro.x}
               y={cuadro.y}
@@ -2235,13 +2235,14 @@ const renderImagenEnLienzo = (img: any) => {
                     ]
                   : undefined
               }
+              rotation={cuadro.rotation || 0}
               scaleX={cuadro.scaleX || 1}
               scaleY={cuadro.scaleY || 1}
               align={cuadro.align || "left"}
               wrap="word"
               draggable={true}
-              onClick={() => setSeleccionadoId(cuadro.id)}
-              onTap={() => setSeleccionadoId(cuadro.id)}
+              onClick={(e: any) => { setSeleccionadoId(cuadro.id); trRef.current?.nodes([e.target]); trRef.current?.forceUpdate(); }}
+              onTap={(e: any) => { setSeleccionadoId(cuadro.id); trRef.current?.nodes([e.target]); trRef.current?.forceUpdate(); }}
               onDragEnd={(e: any) => {
                 const nx = Math.round(e.target.x());
                 const ny = Math.round(e.target.y());
